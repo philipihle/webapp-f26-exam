@@ -1,0 +1,22 @@
+# Build and temporary files
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Database & SQLite files
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets & Local Configurations
+.jira_config.json
+*.local.json
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
