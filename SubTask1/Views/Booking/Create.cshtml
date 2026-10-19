@@ -1,0 +1,136 @@
+@model webapp_f26_exam.Models.Booking
+@{
+    ViewData["Title"] = $"Book {Model.Room?.Name ?? "Study Room"}";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="py-4">
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span>Back to all rooms</span>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Room Details & Overview (Migrated from Details) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+                <div class="position-relative" style="height: 360px; background-color: #f1f5f9;">
+                    <img src="/media/@(Model.Room?.RoomCode).jpg" alt="@Model.Room?.Name" class="w-100 h-100 object-fit-cover"
+                         onerror="this.onerror=null; this.src='https://placehold.co/800x500/f1f5f9/475569?text=' + encodeURIComponent('@(Model.Room?.RoomCode ?? "Room")');" />
+                    
+                    <span class="badge-available position-absolute top-0 start-0 m-3 shadow-sm d-inline-flex align-items-center gap-1">
+                        <span class="d-inline-block rounded-circle bg-success" style="width: 6px; height: 6px;"></span>
+                        Available for booking
+                    </span>
+                    <span class="badge bg-white text-dark position-absolute bottom-0 end-0 m-3 small shadow-sm">
+                        Floor @(Model.Room?.Floor) &bull; Room @(Model.Room?.RoomCode)
+                    </span>
+                </div>
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h2 class="display-6 fw-bold mb-0">@Model.Room?.Name</h2>
+                            <p class="text-muted mb-0 fs-5">@Model.Room?.Building &bull; Floor @Model.Room?.Floor &bull; Room @Model.Room?.RoomCode</p>
+                        </div>
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill flex-shrink-0 ms-2">
+                            <span class="material-symbols-outlined text-[16px] me-1">person</span>
+                            @(Model.Room?.Capacity) people max
+                        </span>
+                    </div>
+
+                    <p class="text-secondary my-4">@Model.Room?.Description</p>
+
+                    <h5 class="fw-bold mb-3">Room Amenities &amp; Facilities</h5>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        @if (Model.Room?.Amenities != null && Model.Room.Amenities.Any())
+                        {
+                            @foreach (var amenity in Model.Room.Amenities)
+                            {
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-3 fs-6 fw-normal d-inline-flex align-items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-success">check</span>
+                                    @amenity
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted small">Standard study room equipment</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Functional Booking Form (With From / To time inputs) -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 80px;">
+                <h4 class="fw-bold mb-1">Reserve this Room</h4>
+                <p class="text-muted small mb-4">Set your start and end time. Choose an available slot for your session.</p>
+
+                <form asp-controller="Booking" asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="RoomId" />
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger py-2 px-3 small border-0 rounded-3 mb-3"></div>
+                    }
+
+                    <input type="hidden" asp-for="UserId" />
+
+                    <!-- From Time (Start) -->
+                    <div class="mb-3">
+                        <label asp-for="Start" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">schedule</span>
+                            From (Start time)
+                        </label>
+                        <input type="datetime-local" asp-for="Start"
+                               value="@Model.Start.ToString("yyyy-MM-ddTHH:mm")"
+                               class="form-control bg-light border-0 py-2.5" required />
+                        <span asp-validation-for="Start" class="text-danger small"></span>
+                    </div>
+
+                    <!-- To Time (End) -->
+                    <div class="mb-3">
+                        <label asp-for="End" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">update</span>
+                            To (End time)
+                        </label>
+                        <input type="datetime-local" asp-for="End"
+                               value="@Model.End.ToString("yyyy-MM-ddTHH:mm")"
+                               class="form-control bg-light border-0 py-2.5" required />
+                        <span asp-validation-for="End" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="mb-4">
+                        <label asp-for="Purpose" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">flag</span>
+                            Purpose
+                        </label>
+                        <select asp-for="Purpose" class="form-select bg-light border-0 py-2.5">
+                            <option value="Study">Individual / Group Study</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Presentation">Presentation Practice</option>
+                            <option value="Group Project">Group Project</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold d-inline-flex align-items-center justify-content-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">event_available</span>
+                        <span>Confirm Reservation</span>
+                    </button>
+                </form>
+
+                <div class="text-center mt-3 small text-muted">
+                    <span class="material-symbols-outlined text-[16px] align-middle me-1">info</span>
+                    Check in with your student card within 15 min of arrival.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
