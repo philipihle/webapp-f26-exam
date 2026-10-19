@@ -1,0 +1,218 @@
+@model webapp_f26_exam.ViewModels.StatsViewModel
+@{
+    ViewData["Title"] = "Analytics & Stats";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center justify-content-between mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold">Analytics &amp; Statistics</h1>
+            <p class="text-muted mb-0">Real-time overview of users, room inventory, and booking performance.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span>Back to Portal</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top KPI Summary Cards (4 Balanced Cards) -->
+    <div class="row g-3 mb-4">
+        <!-- Total Users -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-info">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fw-semibold">Total Users</span>
+                        <div class="p-2 rounded-3 bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center">
+                            <span class="material-symbols-outlined text-[20px]">group</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold mb-1">@Model.TotalUsers</div>
+                    <small class="text-muted">Registered campus accounts</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Study Rooms -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fw-semibold">Study Rooms</span>
+                        <div class="p-2 rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">
+                            <span class="material-symbols-outlined text-[20px]">meeting_room</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold mb-1">@Model.TotalRooms</div>
+                    <small class="text-muted"><strong class="text-success">@Model.AvailableRooms</strong> ready for booking</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Bookings -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-success">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fw-semibold">Active Bookings</span>
+                        <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center">
+                            <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold mb-1">@Model.ActiveBookings</div>
+                    <small class="text-muted">Upcoming or ongoing sessions</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Bookings -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-warning">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fw-semibold">Total Bookings</span>
+                        <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning-emphasis d-flex align-items-center justify-content-center">
+                            <span class="material-symbols-outlined text-[20px]">history</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold mb-1">@Model.TotalBookings</div>
+                    <small class="text-muted">All-time reservations</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row: Most Booked Rooms & Recent Activity -->
+    <div class="row g-4">
+        <!-- Left: Most Booked Study Rooms & Quick Actions -->
+        <div class="col-lg-5 d-flex flex-column gap-4">
+            <!-- Most Booked Rooms Card -->
+            <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
+                    <h5 class="fw-bold mb-1">Most Booked Rooms</h5>
+                    <p class="text-muted small mb-0">Rooms with the highest reservation frequency.</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (Model.TopRooms != null && Model.TopRooms.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var room in Model.TopRooms)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5 border-0 border-bottom">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="p-1.5 rounded-2 bg-light text-primary d-inline-flex align-items-center justify-content-center">
+                                            <span class="material-symbols-outlined text-[18px]">meeting_room</span>
+                                        </span>
+                                        <div>
+                                            <span class="fw-semibold text-dark">@room.RoomName</span>
+                                            <span class="badge bg-light text-secondary border small ms-1">@room.RoomCode</span>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
+                                        @room.BookingCount @(room.BookingCount == 1 ? "booking" : "bookings")
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4 small">
+                            <span class="material-symbols-outlined text-[36px] opacity-50 d-block mb-1">event_busy</span>
+                            No room reservation data recorded yet.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Management Navigation Card -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+                <h6 class="fw-bold mb-1">Admin Shortcuts</h6>
+                <p class="text-muted small mb-3">Jump directly to management portals.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="StudyRooms" class="btn btn-outline-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">meeting_room</span>
+                        <span>Manage Rooms</span>
+                    </a>
+                    <a asp-action="Bookings" class="btn btn-outline-success btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                        <span>Manage Bookings</span>
+                    </a>
+                    <a asp-action="Roles" class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                        <span>Manage Roles</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Recent Booking Activity Table -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1">Recent Booking Activity</h5>
+                        <p class="text-muted small mb-0">Latest reservations across campus.</p>
+                    </div>
+                    <a asp-action="Bookings" class="btn btn-outline-secondary btn-sm rounded-pill px-3">View All</a>
+                </div>
+                <div class="card-body p-4">
+                    @if (Model.RecentBookings != null && Model.RecentBookings.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-muted">
+                                    <tr>
+                                        <th>Room</th>
+                                        <th>Booked By</th>
+                                        <th>Time Slot</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var booking in Model.RecentBookings)
+                                    {
+                                        var isUpcoming = booking.End >= DateTime.Now;
+                                        <tr>
+                                            <td>
+                                                <span class="fw-semibold text-dark">@(booking.Room?.Name ?? "Room " + booking.RoomId)</span>
+                                                <small class="text-muted d-block">@booking.Room?.RoomCode</small>
+                                            </td>
+                                            <td>
+                                                <span class="small text-dark">@(booking.User?.UserName ?? booking.UserId)</span>
+                                            </td>
+                                            <td>
+                                                <span class="small d-block text-dark">@booking.Start.ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture)</span>
+                                                <small class="text-muted">@booking.Start.ToString("HH:mm") &ndash; @booking.End.ToString("HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                @if (isUpcoming)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-secondary border rounded-pill small">Completed</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5 small">
+                            <span class="material-symbols-outlined text-[36px] opacity-50 d-block mb-1">event_busy</span>
+                            No recent booking activity found.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
