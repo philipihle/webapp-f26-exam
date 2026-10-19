@@ -6,6 +6,10 @@ public class RegisterViewModel
 {
 
     [Required]
+    [Display(Name = "User Name")]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required]
     [EmailAddress]
     [Display(Name = "Email")]
     public string Email { get; set; } = string.Empty;
