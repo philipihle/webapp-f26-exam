@@ -1,5 +1,26 @@
+:root {
+  --bs-body-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bs-body-bg: #f8f9ff;
+  --bs-body-color: #0b1c30;
+  
+  --color-primary: #0f172a;
+  --color-primary-container: #131b2e;
+  --color-secondary: #006c4a;
+  --color-secondary-container: #82f5c1;
+  --color-on-secondary-container: #00714e;
+  --color-accent: #2563eb;
+  --color-surface: #ffffff;
+  --color-surface-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-border: #e2e8f0;
+  --color-text-main: #0b1c30;
+  --color-text-muted: #64748b;
+}
+
 html {
-  font-size: 14px;
+  font-size: 15px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +29,153 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  font-family: var(--bs-body-font-family);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6, .font-headline, .navbar-brand {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--color-text-main);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Navigation */
+.navbar-custom {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-primary) !important;
+}
+
+.navbar .nav-link {
+  transition: all 0.15s ease-in-out;
+}
+
+.navbar .nav-link:hover {
+  background-color: var(--color-surface-low);
+  color: var(--color-primary) !important;
+}
+
+/* Scandinavian Rounded Cards */
+.card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+/* Buttons */
+.btn {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #1e293b;
+  border-color: #1e293b;
+  color: #ffffff;
+}
+
+.btn-success {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #ffffff;
+}
+
+.btn-success:hover, .btn-success:focus {
+  background-color: #005137;
+  border-color: #005137;
+  color: #ffffff;
+}
+
+.btn-outline-primary {
+  color: var(--color-primary);
+  border-color: var(--color-border);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-surface-low);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Amenity Chips */
+.amenity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.375rem;
+  background-color: var(--color-surface-low);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Live Availability Status Badges */
+.badge-available {
+  background-color: #ecfdf5;
+  color: #006c4a;
+  border: 1px solid #82f5c1;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.65rem;
+}
+
+.badge-occupied {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.65rem;
+}
+
+/* Material Symbols vertical alignment */
+.material-symbols-outlined {
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Forms */
+.form-control, .form-select {
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.85rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Footer */
+footer {
+  background-color: #ffffff;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
 }

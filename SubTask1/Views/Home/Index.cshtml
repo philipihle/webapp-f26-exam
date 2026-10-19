@@ -1,8 +1,298 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using webapp_f26_exam.Models;
+@model IEnumerable<webapp_f26_exam.Models.Room>
+
+@{
+    ViewData["Title"] = "BookingPortal";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-3">
+@if (!isAuthenticated)
+{
+    <section class="text-center py-5 px-3 max-w-900 mx-auto">
+
+
+        <h1 class="display-4 fw-bold text-dark tracking-tight mb-3">
+            University Study Rooms &amp; Collaboration Spaces
+        </h1>
+        <p class="fs-5 text-muted max-w-700 mx-auto mb-4">
+            Access quiet focus pods, group project rooms, and multimedia presentation spaces across campus. Sign in with your student account to check live room availability and make reservations.
+        </p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg rounded-pill px-4 py-2.5 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-[20px]">login</span>
+                <span>Sign In to Reserve</span>
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-2.5 fw-semibold d-inline-flex align-items-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">person_add</span>
+                <span>Register Student Account</span>
+            </a>
+        </div>
+
+    </section>
+
+    <!-- Campus Facilities Overview (Informative, without booking controls) -->
+    <section class="py-4 border-top">
+        <div class="text-center mb-5">
+            <h2 class="h3 fw-bold text-dark mb-1">Explore our range of rooms</h2>
+            <p class="text-muted small">Here are some examples of the rooms we have available.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="p-3 rounded-3 bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <span class="material-symbols-outlined text-[28px]">volume_off</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Silent Focus Pods</h5>
+                    <p class="text-muted small mb-0">
+                        Individual and dual study spaces optimized for distraction-free reading, thesis work, and exam preparation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="p-3 rounded-3 bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <span class="material-symbols-outlined text-[28px]">groups</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Group Rooms</h5>
+                    <p class="text-muted small mb-0">
+                        Equipped with whiteboards, tables, and charging hubs for project teams.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="p-3 rounded-3 bg-warning bg-opacity-10 text-warning-emphasis d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <span class="material-symbols-outlined text-[28px]">tv</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Meeting Rooms</h5>
+                    <p class="text-muted small mb-0">
+                        Rooms equipped with TV screens, whiteboards and charging hubs for meetings.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-5 my-4 bg-light rounded-4 p-4 p-md-5">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark mb-1">How Campus Booking Works</h3>
+            <p class="text-muted small">Three simple steps to guarantee your study space.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-2">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-xs fw-bold fs-5 text-primary mb-3" style="width: 48px; height: 48px;">
+                        1
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Sign In</h6>
+                    <p class="text-muted small mb-0">Log in with your verified campus student account to unlock the full room inventory.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-2">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-xs fw-bold fs-5 text-primary mb-3" style="width: 48px; height: 48px;">
+                        2
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Select Time &amp; Room</h6>
+                    <p class="text-muted small mb-0">Filter by building, equipment, and capacity. Pick your desired slot with instant confirmation.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-2">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-xs fw-bold fs-5 text-primary mb-3" style="width: 48px; height: 48px;">
+                        3
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Check In On Arrival</h6>
+                    <p class="text-muted small mb-0">Tap your physical student card on the door scanner within 15 minutes to confirm your session.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <section class="py-4 px-2 max-w-1000 mx-auto">
+        <!-- Personalized Greeting & Quick Stats -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h1 class="display-6 fw-bold text-dark tracking-tight mb-1">
+                    Find &amp; Reserve Study Rooms
+                </h1>
+                <p class="text-muted mb-0">
+                    Welcome, <strong>@User.Identity?.Name</strong>. Browse available slots and manage your campus reservations.
+                </p>
+            </div>
+            <div>
+                <a asp-controller="Booking" asp-action="MyBookings" class="btn btn-outline-primary rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1 shadow-2xs">
+                    <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                    <span>My Bookings</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Widget Card (Routes to Rooms/Index) -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 text-start bg-white mb-5">
+            <form asp-controller="Rooms" asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                        <span class="material-symbols-outlined text-[16px]">apartment</span>
+                        Campus Building
+                    </label>
+                    @{
+                        var homeBuildings = Model?.Select(r => r.Building)
+                            .Where(b => !string.IsNullOrWhiteSpace(b))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .OrderBy(b => b)
+                            .ToList() ?? new List<string>();
+                    }
+                    <select name="building" class="form-select bg-light border-0 py-2">
+                        <option value="All" selected>All campus buildings</option>
+                        @foreach (var building in homeBuildings)
+                        {
+                            <option value="@building">@building</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                        <span class="material-symbols-outlined text-[16px]">group</span>
+                        Capacity
+                    </label>
+                    <select name="capacity" class="form-select bg-light border-0 py-2">
+                        <option value="All" selected>Any capacity</option>
+                        <option value="1-2">1–2 people (Individual)</option>
+                        <option value="3-6">3–6 people (Group study)</option>
+                        <option value="7+">7+ people (Large workshop)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">search</span>
+                        <span>Filter Available Rooms</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Popular Amenity Chips -->
+            <div class="mt-3 pt-3 border-top d-flex flex-wrap align-items-center gap-2">
+                <span class="small text-muted me-1">Filter by amenities:</span>
+                <a asp-controller="Rooms" asp-action="Index" asp-route-query="Screen" class="amenity-chip text-decoration-none">
+                    <span class="material-symbols-outlined text-[14px] text-success">check</span>
+                    Screen / Monitor
+                </a>
+                <a asp-controller="Rooms" asp-action="Index" asp-route-query="Whiteboard" class="amenity-chip text-decoration-none">
+                    <span class="material-symbols-outlined text-[14px]">edit_note</span>
+                    Whiteboard
+                </a>
+                <a asp-controller="Rooms" asp-action="Index" asp-route-query="Camera" class="amenity-chip text-decoration-none">
+                    <span class="material-symbols-outlined text-[14px]">video_camera_front</span>
+                    Video conference
+                </a>
+                <a asp-controller="Rooms" asp-action="Index" asp-route-query="Quiet" class="amenity-chip text-decoration-none">
+                    <span class="material-symbols-outlined text-[14px]">volume_off</span>
+                    Quiet zone
+                </a>
+            </div>
+        </div>
+
+        <!-- Active Rooms Section -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+            <div>
+                <h3 class="fw-bold mb-0">Active Study Rooms</h3>
+                <p class="text-muted small mb-0">Select a room below to book a study session.</p>
+            </div>
+            <a asp-controller="Rooms" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                View All Rooms &rarr;
+            </a>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-3">
+                <div class="mb-3 text-muted">
+                    <span class="material-symbols-outlined text-[56px] text-secondary opacity-50">meeting_room</span>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">No study rooms registered yet</h4>
+                <p class="text-muted max-w-700 mx-auto mb-4">
+                    Available rooms will appear here once study rooms are registered in the system.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var room in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white d-flex flex-column justify-content-between transition-all">
+                            <div class="position-relative" style="height: 180px; background-color: #f1f5f9;">
+                                <img src="/media/@(room.RoomCode).jpg" alt="@room.Name" class="w-100 h-100 object-fit-cover"
+                                     onerror="this.onerror=null; this.src='https://placehold.co/600x350/f1f5f9/475569?text=' + encodeURIComponent('@(room.RoomCode)');"/>
+                                <span class="badge bg-white text-dark position-absolute top-0 end-0 m-2.5 small shadow-2xs">
+                                    Floor @room.Floor &bull; @room.RoomCode
+                                </span>
+                            </div>
+                            <div class="p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h5 class="fw-bold text-dark mb-0">@room.Name</h5>
+                                    <span class="badge bg-light text-dark border rounded-pill small">
+                                        @room.Capacity max
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-2">@room.Building &bull; Floor @room.Floor</p>
+                                <p class="small text-secondary mb-3 flex-grow-1">@room.Description</p>
+
+                                @if (room.Amenities != null && room.Amenities.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1 mb-3">
+                                        @foreach (var amenity in room.Amenities.Take(2))
+                                        {
+                                            <span class="badge bg-light text-dark border px-2 py-1 rounded-2 small fw-normal">
+                                                @amenity
+                                            </span>
+                                        }
+                                        @if (room.Amenities.Count > 2)
+                                        {
+                                            <span class="badge bg-light text-muted border px-2 py-1 rounded-2 small fw-normal">
+                                                +@(room.Amenities.Count - 2)
+                                            </span>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="mt-auto pt-2 border-top d-flex gap-2">
+                                    <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id" class="btn btn-primary btn-sm flex-grow-1 rounded-pill d-inline-flex align-items-center justify-content-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px]">event_available</span>
+                                        <span>Reserve</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+}
 </div>
+
+<style>
+    .max-w-1000 {
+        max-width: 1000px;
+    }
+
+    .max-w-900 {
+        max-width: 900px;
+    }
+
+    .max-w-700 {
+        max-width: 700px;
+    }
+</style>

@@ -1,47 +1,119 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - webapp_f26_exam</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - BookingPortal</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/webapp_f26_exam.styles.css" asp-append-version="true" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="alternate icon" href="~/favicon.ico" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">webapp_f26_exam</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+<body class="d-flex flex-column min-vh-100">
+    <header class="sticky-top bg-white border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light py-2">
+            <div class="container-fluid px-3 px-lg-4">
+
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="p-1 rounded-2 bg-dark text-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <span class="material-symbols-outlined text-[18px]">meeting_room</span>
+                    </span>
+                    <span class="fw-bold tracking-tight">BookingPortal</span>
+                </a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <!-- Left: Navigation Links -->
+                    @if (User.Identity?.IsAuthenticated == true){
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center ms-lg-3 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link px-3 py-2 text-dark fw-semibold d-inline-flex align-items-center gap-1.5 rounded-pill" asp-area="" asp-controller="Rooms" asp-action="Index">
+                                <span class="material-symbols-outlined text-[18px] text-muted">search</span>
+                                <span>Find a room</span>
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 text-dark fw-semibold d-inline-flex align-items-center gap-1.5 rounded-pill" asp-area="" asp-controller="Booking" asp-action="MyBookings">
+                                    <span class="material-symbols-outlined text-[18px] text-muted">calendar_month</span>
+                                    <span>My Bookings</span>
+                                </a>
+                            </li>
                     </ul>
+                    }
+
+                    <!-- Right: Admin Link & User Account -->
+                    <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a class="btn btn-outline-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Admin" asp-action="Index">
+                                    <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                                    <span>Admin Portal</span>
+                                </a>
+                            }
+
+                            var roleName = User.IsInRole("Admin") ? "Admin" : "Student";
+                            <div class="d-none d-sm-flex flex-column text-end px-2">
+                                <span class="fw-semibold small text-dark">@User.Identity.Name</span>
+                                <span class="text-muted" style="font-size: 11px;">@roleName &bull; Campus User</span>
+                            </div>
+
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Logout">
+                                Logout
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Login">
+                                Sign in
+                            </a>
+                            <a class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" asp-area="" asp-controller="Account" asp-action="Register">
+                                Register
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container-xl flex-grow-1">
+        <main role="main" class="pb-4">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - webapp_f26_exam - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top py-4 mt-auto bg-white">
+        <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
+            <div class="mb-2 mb-md-0">
+                &copy; 2026 <strong>BookingPortal</strong>
+            </div>
+            <div class="d-flex gap-3">
+                <a asp-area="" asp-controller="Rooms" asp-action="Index" class="text-muted text-decoration-none">Study Rooms</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy &amp; Terms</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="" asp-controller="Admin" asp-action="Index" class="text-muted text-decoration-none">Admin Area</a>
+                }
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
