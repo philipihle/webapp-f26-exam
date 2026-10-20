@@ -8,6 +8,7 @@
 
 # Database & SQLite files
 *.db
+!SubTask1/StudyRoomMvc.db
 *.db-shm
 *.db-wal
 
