@@ -29,7 +29,7 @@ public class BookingController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(int roomId)
+    public async Task<IActionResult> Create(int roomId, DateTime? start, DateTime? end)
     {
         var room = await _roomRepository.GetRoomByIdAsync(roomId);
         if (room == null)
@@ -42,8 +42,8 @@ public class BookingController : Controller
             RoomId = room.Id,
             Room = room,
             UserId = _userManager.GetUserId(User) ?? string.Empty,
-            Start = DateTime.Today.AddHours(DateTime.Now.Hour + 1),
-            End = DateTime.Today.AddHours(DateTime.Now.Hour + 2)
+            Start = start ?? DateTime.Today.AddHours(DateTime.Now.Hour + 1),
+            End = end ?? (start?.AddHours(1) ?? DateTime.Today.AddHours(DateTime.Now.Hour + 2))
         };
 
         return View(booking);
@@ -69,7 +69,7 @@ public class BookingController : Controller
             return View(booking);
         }
 
-        // Complex server-side rule: Check for overlapping bookings in the repository
+        // Check for overlapping bookings
         if (await _bookingRepository.HasConflictAsync(booking.RoomId, booking.Start, booking.End))
         {
             ModelState.AddModelError(string.Empty, "This room is already booked for the selected time slot.");

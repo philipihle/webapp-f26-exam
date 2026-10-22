@@ -21,6 +21,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 4;
     options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ æøåÆØÅ";
 })
 .AddEntityFrameworkStores<MyDbContext>()
 .AddDefaultTokenProviders();
@@ -34,16 +35,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-// Ensure all requests, validation messages, and date formats default to English (en-US)
-var defaultCulture = new System.Globalization.CultureInfo("en-US");
-var localizationOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
-    SupportedCultures = new List<System.Globalization.CultureInfo> { defaultCulture },
-    SupportedUICultures = new List<System.Globalization.CultureInfo> { defaultCulture }
-};
-app.UseRequestLocalization(localizationOptions);
 
 app.UseHttpsRedirection();
 app.UseRouting();

@@ -8,18 +8,15 @@ public class AccountController : Controller
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
         UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signInManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<AccountController> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _roleManager = roleManager;
         _logger = logger;
     }
 
@@ -39,17 +36,7 @@ public class AccountController : Controller
 
             if (result.Succeeded)
             {
-                // Ensure the "Student" role exists
-                if (!await _roleManager.RoleExistsAsync("Student"))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole("Student"));
-                    _logger.LogInformation("Created default role 'Student' in database.");
-                }
-
-                // Assign "Student" role as default for new registrations
                 await _userManager.AddToRoleAsync(user, "Student");
-                _logger.LogInformation("New user {UserName} ({Email}) registered and assigned 'Student' role.", user.UserName, user.Email);
-
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
             }
@@ -85,7 +72,6 @@ public class AccountController : Controller
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User {UserName} ({Email}) logged in successfully.", user.UserName, user.Email);
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -100,9 +86,7 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Logout()
     {
-        var userName = User.Identity?.Name;
         await _signInManager.SignOutAsync();
-        _logger.LogInformation("User {UserName} logged out.", userName);
         return RedirectToAction("Index", "Home");
     }
 }

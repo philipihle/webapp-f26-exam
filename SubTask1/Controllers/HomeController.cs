@@ -8,20 +8,16 @@ namespace webapp_f26_exam.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IRoomRepository _roomRepository;
 
-    public HomeController(ILogger<HomeController> logger, IRoomRepository roomRepository)
+    public HomeController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        _roomRepository = roomRepository;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        var rooms = await _roomRepository.GetActiveRoomsAsync();
-        _logger.LogInformation("Home page accessed by {User}.", User.Identity?.Name ?? "Anonymous");
-        return View(rooms);
+        return View();
     }
 
     [HttpGet]

@@ -2,133 +2,71 @@
     ViewData["Title"] = "Admin Portal";
 }
 
-<div class="container py-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-8">
-            <h1 class="display-5 fw-bold mb-1">Admin Portal</h1>
-            <p class="text-muted fs-5 mb-0">Control center for study rooms, reservations, user management, and analytics.</p>
-        </div>
+<div class="py-4">
+    <div class="mb-4">
+        <h1 class="display-6 fw-bold mb-1">Admin Portal</h1>
+        <p class="text-muted mb-0">Manage users, access roles, and view booking statistics.</p>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <!-- Manage Study Rooms -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <!-- Users -->
         <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-primary hover-card">
-                <div class="card-body p-4 d-flex flex-column">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 d-flex flex-column justify-content-between">
+                <div>
                     <div class="d-flex align-items-center mb-3">
-                        <div class="p-3 rounded-3 bg-primary bg-opacity-10 text-primary me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5zM2.5 10a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/>
-                            </svg>
-                        </div>
-                        <h4 class="card-title mb-0 fw-bold">Study Rooms</h4>
+                        <i class="bi bi-people fs-4 text-primary me-2"></i>
+                        <h5 class="fw-bold mb-0">Users</h5>
                     </div>
-                    <p class="card-text text-muted flex-grow-1">
-                        Add, edit, or remove study rooms. Configure room capacity, availability status, and equipment.
+                    <p class="text-muted small mb-4">
+                        View registered users, edit contact details, and remove user accounts.
                     </p>
-                    <a asp-action="StudyRooms" class="btn btn-primary rounded-pill px-4 mt-3">
-                        Manage Rooms &rarr;
+                </div>
+                <div>
+                    <a asp-action="Users" class="btn btn-outline-primary btn-sm w-100">
+                        Manage Users
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Manage Bookings -->
+        <!-- Roles -->
         <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-success hover-card">
-                <div class="card-body p-4 d-flex flex-column">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 d-flex flex-column justify-content-between">
+                <div>
                     <div class="d-flex align-items-center mb-3">
-                        <div class="p-3 rounded-3 bg-success bg-opacity-10 text-success me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
-                            </svg>
-                        </div>
-                        <h4 class="card-title mb-0 fw-bold">Bookings</h4>
+                        <i class="bi bi-shield-lock fs-4 text-primary me-2"></i>
+                        <h5 class="fw-bold mb-0">Roles</h5>
                     </div>
-                    <p class="card-text text-muted flex-grow-1">
-                        Overview of active, past, and upcoming room reservations. Modify or cancel bookings when required.
+                    <p class="text-muted small mb-4">
+                        Assign administrator privileges and promote or demote users.
                     </p>
-                    <a asp-action="Bookings" class="btn btn-success rounded-pill px-4 mt-3">
-                        Manage Bookings &rarr;
+                </div>
+                <div>
+                    <a asp-action="Roles" class="btn btn-outline-primary btn-sm w-100">
+                        Manage Roles
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Manage Users -->
+        <!-- Statistics -->
         <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-info hover-card">
-                <div class="card-body p-4 d-flex flex-column">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 d-flex flex-column justify-content-between">
+                <div>
                     <div class="d-flex align-items-center mb-3">
-                        <div class="p-3 rounded-3 bg-info bg-opacity-10 text-info me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
-                            </svg>
-                        </div>
-                        <h4 class="card-title mb-0 fw-bold">Users</h4>
+                        <i class="bi bi-bar-chart-line fs-4 text-primary me-2"></i>
+                        <h5 class="fw-bold mb-0">Statistics</h5>
                     </div>
-                    <p class="card-text text-muted flex-grow-1">
-                        View registered users, inspect registration details, and monitor account activities.
+                    <p class="text-muted small mb-4">
+                        Review room inventory, popular rooms, and recent booking activity.
                     </p>
-                    <a asp-action="Users" class="btn btn-info text-white rounded-pill px-4 mt-3">
-                        Manage Users &rarr;
-                    </a>
                 </div>
-            </div>
-        </div>
-
-        <!-- Manage Roles -->
-        <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-warning hover-card">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="p-3 rounded-3 bg-warning bg-opacity-10 text-warning me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
-                            </svg>
-                        </div>
-                        <h4 class="card-title mb-0 fw-bold">Roles & Access</h4>
-                    </div>
-                    <p class="card-text text-muted flex-grow-1">
-                        Assign admin permissions, manage system roles, and configure user authorization levels.
-                    </p>
-                    <a asp-action="Roles" class="btn btn-warning rounded-pill px-4 mt-3">
-                        Manage Roles &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Statistics & Reports -->
-        <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-secondary hover-card">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="p-3 rounded-3 bg-secondary bg-opacity-10 text-secondary me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M0 0h1v15h15v1H0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.65 4.563a.5.5 0 0 1-.78-.62l4-5a.5.5 0 0 1 .744-.034l2.585 2.585L13.379 4H10.5a.5.5 0 0 1-.5-.5"/>
-                            </svg>
-                        </div>
-                        <h4 class="card-title mb-0 fw-bold">Statistics</h4>
-                    </div>
-                    <p class="card-text text-muted flex-grow-1">
-                        View room utilization rates, popular booking time slots, and general portal usage metrics.
-                    </p>
-                    <a asp-action="Stats" class="btn btn-secondary rounded-pill px-4 mt-3">
-                        View Statistics &rarr;
+                <div>
+                    <a asp-action="Stats" class="btn btn-outline-primary btn-sm w-100">
+                        View Statistics
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .hover-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .hover-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08) !important;
-    }
-</style>

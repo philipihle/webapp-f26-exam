@@ -1,221 +1,175 @@
 @model webapp_f26_exam.ViewModels.RoomsListViewModel
 @{
     ViewData["Title"] = "Study Rooms";
-    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
 <div class="py-4">
-    <!-- Header Section -->
     <div class="row align-items-center justify-content-between mb-4">
         <div class="col-md-8">
             <h1 class="display-6 fw-bold mb-1">Campus Study Rooms</h1>
             <p class="text-muted mb-0">Browse and book study rooms, silent pods, and collaboration labs across campus.</p>
         </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
-                <span class="material-symbols-outlined text-[14px] text-success me-1">check_circle</span>
-                @(Model.Rooms.Count) rooms available
-            </span>
-        </div>
     </div>
 
-    <!-- Filter & Search Toolbar -->
     <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white">
-        <form asp-controller="Rooms" asp-action="Index" method="get" class="row g-3 align-items-end">
-            <!-- Building Filter -->
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                    <span class="material-symbols-outlined text-[16px]">apartment</span>
-                    Building
-                </label>
-                <select name="building" class="form-select bg-light border-0">
-                    <option value="All" selected="@(Model.SelectedBuilding == "All" || string.IsNullOrEmpty(Model.SelectedBuilding))">All Campus Buildings</option>
-                    @foreach (var building in Model.AvailableBuildings)
-                    {
-                        <option value="@building" selected="@(Model.SelectedBuilding == building)">@building</option>
-                    }
-                </select>
-            </div>
-
-            <!-- Capacity Filter -->
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                    <span class="material-symbols-outlined text-[16px]">group</span>
-                    Capacity
-                </label>
-                <select name="capacity" class="form-select bg-light border-0">
-                    <option value="All" selected="@(Model.SelectedCapacity == "All")">Any Capacity</option>
-                    <option value="1-2" selected="@(Model.SelectedCapacity == "1-2")">1–2 persons (Pod)</option>
-                    <option value="3-6" selected="@(Model.SelectedCapacity == "3-6")">3–6 persons (Group)</option>
-                    <option value="7+" selected="@(Model.SelectedCapacity == "7+")">7+ persons (Lab)</option>
-                </select>
-            </div>
-
-            <!-- Room Name / Code Search -->
-            <div class="col-md-4">
-                <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                    <span class="material-symbols-outlined text-[16px]">search</span>
-                    Room Name or Code
-                </label>
-                <input type="text" name="query" value="@Model.SearchQuery" class="form-control bg-light border-0" placeholder="e.g. Bergen, P32-N102..." />
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1 shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">filter_alt</span>
-                    <span>Filter</span>
-                </button>
-                @if (!string.IsNullOrEmpty(Model.SearchQuery) || Model.SelectedBuilding != "All" || Model.SelectedCapacity != "All" || (Model.SelectedAmenities != null && Model.SelectedAmenities.Any()))
+    <form asp-controller="Rooms" asp-action="Index" method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                <i class="bi bi-building me-1"></i>
+                Building
+            </label>
+            <select name="building" class="form-select bg-light border-0">
+                <option value="All" selected="@(Model.SelectedBuilding == "All")">All Campus Buildings</option>
+                @foreach (var building in Model.AvailableBuildings)
                 {
-                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center" title="Reset all filters">
-                        <span class="material-symbols-outlined text-[18px]">close</span>
-                    </a>
+                    <option value="@building" selected="@(Model.SelectedBuilding == building)">@building</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                <i class="bi bi-people me-1"></i>
+                Capacity
+            </label>
+            <select name="capacity" class="form-select bg-light border-0">
+                <option value="All" selected="@(Model.SelectedCapacity == "All")">Any Capacity</option>
+                <option value="1-2" selected="@(Model.SelectedCapacity == "1-2")">1-2 people (Pod)</option>
+                <option value="3-6" selected="@(Model.SelectedCapacity == "3-6")">3-6 people (Group)</option>
+                <option value="7+" selected="@(Model.SelectedCapacity == "7+")">7+ people (Auditorium)</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1 shadow-sm">
+                <i class="bi bi-funnel me-1"></i>
+                <span>Filter</span>
+            </button>
+            @if (Model.SelectedBuilding != "All" || Model.SelectedCapacity != "All" || Model.SelectedAmenities.Any())
+            {
+                <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center" title="Reset all filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+        </div>
+        <!-- From Time (Start) -->
+        <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                <i class="bi bi-clock me-1"></i>
+                From (Start time)
+            </label>
+            <input type="datetime-local" name="start"
+                   value="@(Model.Start?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))"
+                   class="form-control bg-light border-0" />
+        </div>
+
+        <!-- To Time (End) -->
+        <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
+                <i class="bi bi-clock-history me-1"></i>
+                To (End time)
+            </label>
+            <input type="datetime-local" name="end"
+                   value="@(Model.End?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm"))"
+                   class="form-control bg-light border-0" />
+        </div>
+
+        <div class="col-12 mt-3 pt-3 border-top">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-0">
+                    <i class="bi bi-laptop me-1"></i>
+                    Equipment &amp; Facilities
+                </label>
+                @if (Model.SelectedAmenities.Any())
+                {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle small">
+                        @(Model.SelectedAmenities.Count) selected
+                    </span>
                 }
             </div>
-
-            <!-- Equipment Multi-Select Checkboxes -->
-            <div class="col-12 mt-3 pt-3 border-top">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-0">
-                        <span class="material-symbols-outlined text-[16px]">devices</span>
-                        Equipment &amp; Facilities (Multi-select)
-                    </label>
-                    @if (Model.SelectedAmenities != null && Model.SelectedAmenities.Any())
-                    {
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill small">
-                            @(Model.SelectedAmenities.Count) selected
-                        </span>
-                    }
-                </div>
-                <div class="d-flex flex-wrap gap-3">
-                    @for (int i = 0; i < Model.AvailableAmenities.Count; i++)
-                    {
-                        var amenity = Model.AvailableAmenities[i];
-                        var isChecked = Model.SelectedAmenities != null && Model.SelectedAmenities.Contains(amenity, StringComparer.OrdinalIgnoreCase);
-                        <div class="form-check form-check-inline m-0">
-                            <input class="form-check-input" type="checkbox" name="amenities" value="@amenity" id="amenity_@i" @(isChecked ? "checked" : "") />
-                            <label class="form-check-label small fw-medium text-dark" for="amenity_@i">
-                                @amenity
-                            </label>
-                        </div>
-                    }
-                </div>
+            <div class="d-flex flex-wrap gap-3">
+                @for (int i = 0; i < Model.AvailableAmenities.Count; i++)
+                {
+                    var amenity = Model.AvailableAmenities[i];
+                    var isChecked = Model.SelectedAmenities.Contains(amenity);
+                    <div class="form-check form-check-inline m-0">
+                        <input class="form-check-input" type="checkbox" name="amenities" value="@amenity" id="amenity_@i" @(isChecked ? "checked" : "")/>
+                        <label class="form-check-label small fw-medium text-dark" for="amenity_@i">
+                            @amenity
+                        </label>
+                    </div>
+                }
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 
-    <!-- Rooms Grid -->
-    @if (Model.Rooms != null && Model.Rooms.Any())
-    {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            @foreach (var room in Model.Rooms)
-            {
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column justify-content-between bg-white">
-                        <div>
-                            <!-- Room Image & Badges -->
-                            <div class="position-relative" style="height: 180px; background-color: #f1f5f9;">
-                                <img src="@room.ImageUrl" alt="@room.Name" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/f1f5f9/475569?text=' + encodeURIComponent('@room.RoomCode');" />
-                                
+@if (Model.Rooms.Any())
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var room in Model.Rooms)
+        {
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column justify-content-between bg-white">
+                    <div>
+                        <div class="p-4 pb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
                                 @if (room.IsAvailableNow)
                                 {
-                                    <span class="badge-available position-absolute top-0 start-0 m-2.5 small shadow-sm d-inline-flex align-items-center gap-1">
-                                        <span class="d-inline-block rounded-circle bg-success" style="width: 6px; height: 6px;"></span>
-                                        @room.StatusText
-                                    </span>
+                                    <span class="badge-available small">Available now</span>
                                 }
                                 else
                                 {
-                                    <span class="badge-occupied position-absolute top-0 start-0 m-2.5 small shadow-sm d-inline-flex align-items-center gap-1">
-                                        <span class="d-inline-block rounded-circle bg-danger" style="width: 6px; height: 6px;"></span>
-                                        @room.StatusText
-                                    </span>
+                                    <span class="badge-occupied small">In use</span>
                                 }
-
-                                <span class="badge bg-white text-dark position-absolute bottom-0 end-0 m-2.5 small shadow-sm">
-                                    Floor @room.Floor &bull; @room.RoomCode
+                                <span class="badge bg-light text-muted border small d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-person me-1"></i>
+                                    @room.Capacity people
                                 </span>
                             </div>
 
-                            <!-- Room Details -->
-                            <div class="p-4 pb-2">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <h5 class="fw-bold mb-0">@room.Name</h5>
-                                        <small class="text-muted">@room.Building</small>
-                                    </div>
-                                    <span class="badge bg-light text-muted border small d-inline-flex align-items-center gap-1">
-                                        <span class="material-symbols-outlined text-[14px]">person</span>
-                                        @room.Capacity people
-                                    </span>
-                                </div>
-
-                                <p class="text-muted small mb-3">@room.Description</p>
-
-                                <!-- Amenity Chips -->
-                                <div class="d-flex flex-wrap gap-1 mb-2">
-                                    @foreach (var amenity in room.Amenities)
-                                    {
-                                        <span class="amenity-chip">@amenity</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card Footer -->
-                        <div class="p-4 pt-0">
-                            <div class="d-flex justify-content-between align-items-center text-muted small mb-3 pt-2 border-top">
-                                <span class="@(room.IsAvailableNow ? "text-success fw-semibold" : "text-muted")">
-                                    @room.AvailabilityDetail
-                                </span>
+                            <div class="mb-2">
+                                <h5 class="fw-bold mb-0">@room.Name</h5>
+                                <small class="text-muted">@room.Building &bull; Floor @room.Floor - @room.RoomCode</small>
                             </div>
 
-                            <div>
-                                @if (isAuthenticated)
+                            <p class="text-muted small mb-3">@room.Description</p>
+
+                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                @foreach (var amenity in room.Amenities)
                                 {
-                                    if (room.IsAvailableNow)
-                                    {
-                                        <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id" class="btn btn-primary btn-sm w-100 rounded-pill d-inline-flex align-items-center justify-content-center gap-1 shadow-2xs">
-                                            <span class="material-symbols-outlined text-[16px]">event_available</span>
-                                            <span>Book now</span>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id" class="btn btn-outline-primary btn-sm w-100 rounded-pill d-inline-flex align-items-center justify-content-center gap-1">
-                                            <span class="material-symbols-outlined text-[16px]">schedule</span>
-                                            <span>Book for later</span>
-                                        </a>
-                                    }
-                                }
-                                else
-                                {
-                                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm w-100 rounded-pill d-inline-flex align-items-center justify-content-center gap-1 shadow-2xs">
-                                        <span class="material-symbols-outlined text-[16px]">login</span>
-                                        <span>Sign in to book</span>
-                                    </a>
+                                    <span class="amenity-chip">@amenity</span>
                                 }
                             </div>
                         </div>
                     </div>
+
+                    <div class="p-4 pt-0">
+                        <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id"
+                           asp-route-start="@Model.Start?.ToString("yyyy-MM-ddTHH:mm")"
+                           asp-route-end="@Model.End?.ToString("yyyy-MM-ddTHH:mm")"
+                           class="btn @(room.IsAvailableNow ? "btn-primary shadow-sm" : "btn-outline-primary") btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1">
+                            <i class="bi @(room.IsAvailableNow ? "bi-calendar-check" : "bi-clock") me-1"></i>
+                            <span>@(room.IsAvailableNow ? "Book now" : "Book for later")</span>
+                        </a>
+                    </div>
                 </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
-            <div class="p-3 rounded-circle bg-light d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-                <span class="material-symbols-outlined text-muted text-[32px]">search_off</span>
             </div>
-            <h4 class="fw-bold mb-1">No rooms matched your criteria</h4>
-            <p class="text-muted small mb-3">Try adjusting your filters, selecting a different building, or clearing the search query.</p>
-            <div>
-                <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-4">
-                    Reset all filters
-                </a>
-            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+        <i class="bi bi-search display-5 text-muted mb-3 d-block"></i>
+        <h4 class="fw-bold mb-1">No rooms matched your criteria</h4>
+        <p class="text-muted small mb-3">Try adjusting your search criteria and try again.</p>
+        <div>
+            <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary btn-sm px-4">
+                Reset all filters
+            </a>
         </div>
-    }
+    </div>
+}
 </div>

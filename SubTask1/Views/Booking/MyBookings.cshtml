@@ -1,4 +1,3 @@
-@using System.Globalization
 @model List<webapp_f26_exam.Models.Booking>
 @{
     ViewData["Title"] = "My Bookings";
@@ -11,49 +10,46 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="h2 fw-bold text-dark mb-1">My Bookings</h1>
-            <p class="text-secondary mb-0">View and manage your upcoming and previous study room reservations.</p>
+            <p class="text-secondary mb-0">View and manage your upcoming and previous reservations.</p>
         </div>
         <div>
-            <a asp-controller="Rooms" asp-action="Index" class="btn btn-primary px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">add</span>
-                <span>Book a Room</span>
+            <a asp-controller="Rooms" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Book a Room
             </a>
         </div>
     </div>
 
     @if (TempData["Message"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show border-0 rounded-4 shadow-sm mb-4" role="alert">
-            <span class="material-symbols-outlined align-middle me-1">check_circle</span>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-1"></i>
             @TempData["Message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-4 shadow-sm mb-4" role="alert">
-            <span class="material-symbols-outlined align-middle me-1">error</span>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-1"></i>
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Active Reservations Section -->
+    <!-- Upcoming Sessions Section -->
     <div class="mb-5">
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <h4 class="fw-bold mb-0">Upcoming Sessions</h4>
-        </div>
+        <h4 class="fw-bold mb-3">Upcoming Sessions</h4>
 
         @if (!activeBookings.Any())
         {
             <div class="card border-0 shadow-sm rounded-4 text-center p-5 bg-white">
-                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mx-auto mb-3" style="width: 64px; height: 64px;">
-                    <span class="material-symbols-outlined text-secondary" style="font-size: 32px;">event_busy</span>
+                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mx-auto mb-3" style="width: 56px; height: 56px;">
+                    <i class="bi bi-calendar-x text-muted fs-3"></i>
                 </div>
                 <h5 class="fw-bold mb-1">No upcoming bookings</h5>
-                <p class="text-muted small mb-4">You do not have any active room reservations at the moment.</p>
+                <p class="text-muted small mb-3">You do not have any active room reservations at the moment.</p>
                 <div>
-                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary px-4 py-2 rounded-pill">
+                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary">
                         Find a study room
                     </a>
                 </div>
@@ -65,48 +61,35 @@
                 @foreach (var booking in activeBookings)
                 {
                     <div class="col-lg-6">
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100 transition-all">
-                            <div class="p-4 d-flex flex-column h-100">
-                                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
-                                    <div>
-                                        <span class="badge-available small d-inline-flex align-items-center gap-1 mb-2">
-                                            <span class="d-inline-block rounded-circle bg-success" style="width: 6px; height: 6px;"></span>
-                                            Confirmed
-                                        </span>
-                                        <h5 class="fw-bold mb-0 text-dark">@(booking.Room?.Name ?? "Study Room")</h5>
-                                        <span class="text-muted small">
-                                            @booking.Room?.Building &bull; Floor @booking.Room?.Floor &bull; Room @booking.Room?.RoomCode
-                                        </span>
-                                    </div>
-                                    <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill small">
-                                        @booking.Purpose
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="mb-3">
+                                    <h5 class="fw-bold text-dark mb-1">@booking.Room?.Name</h5>
+                                    <span class="text-muted small">
+                                        @booking.Room?.Building &bull; Floor @booking.Room?.Floor &bull; @booking.Room?.RoomCode
                                     </span>
                                 </div>
 
                                 <div class="bg-light rounded-3 p-3 mb-3">
                                     <div class="d-flex align-items-center gap-2 text-dark fw-semibold mb-1">
-                                        <span class="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
-                                        @* Using InvariantCulture to make sure weekday and month names are always in English, regardless of the host OS language settings *@
-                                        <span>@booking.Start.ToString("dddd, MMMM d, yyyy", CultureInfo.InvariantCulture)</span>
+                                        <i class="bi bi-calendar-event text-primary"></i>
+                                        <span>@booking.Start.ToString("dd.MM.yyyy")</span>
                                     </div>
                                     <div class="d-flex align-items-center gap-2 text-muted small">
-                                        <span class="material-symbols-outlined text-[18px]">schedule</span>
-                                        <span>@booking.Start.ToString("HH:mm") &ndash; @booking.End.ToString("HH:mm")</span>
-                                        <span class="text-secondary">&bull; (@((booking.End - booking.Start).TotalHours) hrs)</span>
+                                        <i class="bi bi-clock"></i>
+                                        <span>@booking.Start.ToString("HH:mm") – @booking.End.ToString("HH:mm")</span>
+                                        <span>&bull; @booking.Purpose</span>
                                     </div>
                                 </div>
 
-                                <div class="mt-auto pt-2 d-flex justify-content-between align-items-center border-top">
-                                    <div class="text-muted small d-flex align-items-center gap-1">
-                                        <span class="material-symbols-outlined text-[16px]">pin_drop</span>
-                                        <span>Room @booking.Room?.RoomCode</span>
-                                    </div>
+                                <div class="mt-auto pt-2 d-flex justify-content-end gap-2 border-top">
                                     <a asp-controller="Booking" asp-action="BookingConfirmed" asp-route-id="@booking.Id"
-                                       class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                                        View details
+                                       class="btn btn-outline-secondary btn-sm">
+                                        View Details
                                     </a>
                                     <a asp-controller="Booking" asp-action="CancelBooking" asp-route-id="@booking.Id"
-                                       class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                       class="btn btn-outline-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to cancel this booking?');">
                                         Cancel
                                     </a>
                                 </div>
@@ -121,24 +104,35 @@
     <!-- Past Reservations Section -->
     @if (pastBookings.Any())
     {
-        <div>
-            <h5 class="fw-bold text-muted mb-3">Previous Bookings (@pastBookings.Count)</h5>
-            <div class="list-group rounded-4 shadow-sm border-0 overflow-hidden">
-                @foreach (var booking in pastBookings)
-                {
-                    <div class="list-group-item list-group-item-action border-0 border-bottom p-3 bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                        <div>
-                            <span class="fw-semibold text-dark">@(booking.Room?.Name ?? "Study Room")</span>
-                            <span class="text-muted small ms-2">(@booking.Room?.RoomCode)</span>
-                            <div class="text-muted small">
-                                @booking.Start.ToString("MMM d, yyyy", CultureInfo.InvariantCulture) &bull; @booking.Start.ToString("HH:mm") &ndash; @booking.End.ToString("HH:mm") &bull; @booking.Purpose
-                            </div>
-                        </div>
-                        <div>
-                            <span class="badge bg-light text-secondary border rounded-pill">Completed</span>
-                        </div>
-                    </div>
-                }
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0">Previous Bookings (@pastBookings.Count)</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Room</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in pastBookings)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">@booking.Room?.Name</span>
+                                    <small class="text-muted d-block">@booking.Room?.RoomCode &bull; @booking.Room?.Building</small>
+                                </td>
+                                <td>@booking.Start.ToString("dd.MM.yyyy")</td>
+                                <td>@booking.Start.ToString("HH:mm") – @booking.End.ToString("HH:mm")</td>
+                                <td><span class="badge bg-light text-dark border">@booking.Purpose</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     }

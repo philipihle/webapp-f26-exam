@@ -1,104 +1,56 @@
 @model webapp_f26_exam.Models.Booking
 @{
     ViewData["Title"] = "Booking Confirmed";
-    var roomName = Model.Room?.Name ?? "Study Room";
-    var roomCode = Model.Room?.RoomCode ?? "Room";
-    var building = Model.Room?.Building ?? "Campus Building";
-    var floor = Model.Room?.Floor ?? 1;
 }
 
-<div class="py-5 max-w-700 mx-auto">
-    <div class="text-center mb-4">
-        <h1 class="display-6 fw-bold tracking-tight text-dark mb-2">Booking Confirmed!</h1>
-        <p class="text-muted fs-6 mb-0">Your reservation has been booked and registered in the campus schedule.</p>
-    </div>
-
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
-        <div class="p-4 p-md-4 border-bottom bg-light bg-opacity-50 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-            <div>
-                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small fw-bold mb-1">
-                    CONFIRMED BOOKING
-                </span>
-                <div class="small text-muted">Reference: <strong class="text-dark font-monospace">#BOOKING-@Model.Id.ToString("D4")</strong></div>
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center mb-4">
+            <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 56px; height: 56px;">
+                <i class="bi bi-check-lg fs-2"></i>
             </div>
-            <div class="text-sm-end">
-                <span class="small text-muted d-block">Room Code</span>
-                <span class="badge bg-white text-dark border px-2.5 py-1 fw-bold fs-6 shadow-2xs">@roomCode</span>
-            </div>
+            <h2 class="fw-bold mb-1">Booking Confirmed</h2>
+            <p class="text-muted">Your study room has been booked successfully.</p>
         </div>
 
-        <div class="p-4 p-md-5">
-            <div class="row g-4">
-                <!-- Room info -->
-                <div class="col-md-6">
-                    <span class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1 mb-1">
-                        <span class="material-symbols-outlined text-[16px] text-primary">meeting_room</span>
-                        Room &amp; Campus
-                    </span>
-                    <h5 class="fw-bold text-dark mb-1">@roomName</h5>
-                    <p class="text-muted small mb-0">@building &bull; Floor @floor</p>
-                </div>
-
-                <!-- Booked by -->
-                <div class="col-md-6">
-                    <span class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1 mb-1">
-                        <span class="material-symbols-outlined text-[16px] text-primary">account_circle</span>
-                        Booked By
-                    </span>
-                    <h5 class="fw-bold text-dark mb-1 text-truncate">@(Model.User?.UserName ?? Model.UserId)</h5>
-                    <span class="badge bg-light text-muted border small">Student Account</span>
-                </div>
-
-                <!-- Date & Interval -->
-                <div class="col-md-6">
-                    <span class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1 mb-1">
-                        <span class="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
-                        Date &amp; Time
-                    </span>
-                    <h5 class="fw-bold text-dark mb-1">@Model.Start.ToString("dddd, MMMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture)</h5>
-                    <p class="text-muted small mb-0">
-                        <strong class="text-dark">@Model.Start.ToString("HH:mm")</strong> &ndash; <strong class="text-dark">@Model.End.ToString("HH:mm")</strong>
-                        (@((Model.End - Model.Start).TotalHours.ToString("0.#")) hrs)
-                    </p>
-                </div>
-
-                <!-- Purpose -->
-                <div class="col-md-6">
-                    <span class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1 mb-1">
-                        <span class="material-symbols-outlined text-[16px] text-primary">flag</span>
-                        Purpose
-                    </span>
-                    <h5 class="fw-bold text-dark mb-1">@Model.Purpose</h5>
-                    <span class="text-muted small">Academic / Study session</span>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <span class="text-muted small">Booking #@Model.Id</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Room</small>
+                        <span class="fw-semibold">@Model.Room?.Name</span>
+                        <small class="text-muted d-block">@Model.Room?.RoomCode</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Location</small>
+                        <span class="fw-semibold">@Model.Room?.Building</span>
+                        <small class="text-muted d-block">Floor @Model.Room?.Floor</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Date</small>
+                        <span class="fw-semibold">@Model.Start.ToString("dd.MM.yyyy")</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Time</small>
+                        <span class="fw-semibold">@Model.Start.ToString("HH:mm") – @Model.End.ToString("HH:mm")</span>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">Purpose</small>
+                        <span class="fw-semibold">@Model.Purpose</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Arrival Check-in Notice Box -->
-            <div class="alert alert-warning border-0 rounded-4 p-3 mt-4 mb-0 d-flex align-items-start gap-3 bg-warning bg-opacity-10">
-                <span class="material-symbols-outlined text-warning-emphasis text-[22px] flex-shrink-0 mt-0.5">notification_important</span>
-                <div class="small text-warning-emphasis">
-                    <strong>Check-in Required:</strong> Please tap your student card on the door scanner by 
-                    <strong>@Model.Start.AddMinutes(15).ToString("HH:mm")</strong> to validate your presence and prevent automatic room release.
-                </div>
+            <div class="card-footer bg-white border-top p-3 d-flex justify-content-between">
+                <a asp-controller="Booking" asp-action="MyBookings" class="btn btn-outline-secondary">
+                    View My Bookings
+                </a>
+                <a asp-controller="Rooms" asp-action="Index" class="btn btn-primary">
+                    Book Another Room
+                </a>
             </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="p-4 bg-light border-top d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-1 w-100 w-sm-auto justify-content-center">
-                <span class="material-symbols-outlined text-[18px]">home</span>
-                <span>Go to Homepage</span>
-            </a>
-            <a asp-controller="Rooms" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-1 w-100 w-sm-auto justify-content-center shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">meeting_room</span>
-                <span>Browse More Rooms</span>
-            </a>
         </div>
     </div>
 </div>
-
-<style>
-    .max-w-700 { max-width: 700px; }
-    .shadow-xs { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
-    .shadow-2xs { box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04); }
-</style>

@@ -1,9 +1,23 @@
 @model webapp_f26_exam.ViewModels.UsersViewModel
 
 @{
-    ViewData["Title"] = "User management";
+    ViewData["Title"] = "User Management";
 }
-<div class="card-body p-4">
+
+<div class="py-4">
+    <div class="row align-items-center justify-content-between mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">User Management</h2>
+            <p class="text-muted mb-0">Overview and management of registered users.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Portal
+            </a>
+        </div>
+    </div>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4" role="alert">
@@ -11,6 +25,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4" role="alert">
@@ -19,32 +34,45 @@
         </div>
     }
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Role</th>
-                <th scope="col">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var user in Model.Users)
-            {
-                <tr>
-                    <td>@user.Name</td>
-                    <td>@user.Email</td>
-                    <td>@user.Role</td>
-                    <td>
-                        <a asp-controller="Admin" asp-action="EditUser" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                        <a asp-controller="Admin" asp-action="DeleteUser" asp-route-userId="@user.Id"
-                           onclick="return confirm('Are you sure you want to delete the user: @user.Email?');"
-                           class="btn btn-sm btn-outline-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td class="fw-semibold text-dark">@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Admin</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Student</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Admin" asp-action="EditUser" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                                <a asp-controller="Admin" asp-action="DeleteUser" asp-route-userId="@user.Id"
+                                   onclick="return confirm('Are you sure you want to delete @user.Email?');"
+                                   class="btn btn-sm btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

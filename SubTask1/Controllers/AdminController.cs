@@ -11,20 +11,17 @@ namespace webapp_f26_exam.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly MyDbContext _context;
     private readonly IBookingRepository _bookingRepository;
     private readonly ILogger<AdminController> _logger;
 
     public AdminController(
-        RoleManager<IdentityRole> roleManager,
         UserManager<IdentityUser> userManager,
         MyDbContext context,
         IBookingRepository bookingRepository,
         ILogger<AdminController> logger)
     {
-        _roleManager = roleManager;
         _userManager = userManager;
         _context = context;
         _bookingRepository = bookingRepository;
@@ -39,36 +36,17 @@ public class AdminController : Controller
     public async Task<IActionResult> Users()
     {
         var allUsers = await _userManager.Users.ToListAsync();
-        var userList = new List<UserItemViewModel>();
+        var adminUserIds = (await _userManager.GetUsersInRoleAsync("Admin")).Select(u => u.Id).ToHashSet();
 
-        foreach (var user in allUsers)
+        var userList = allUsers.Select(user => new UserItemViewModel
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            userList.Add(new UserItemViewModel
-            {
-                Id = user.Id,
-                Name = user.UserName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                Role = string.Join(", ", roles)
-            });
-        }
+            Id = user.Id,
+            Name = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            Role = adminUserIds.Contains(user.Id) ? "Admin" : "Student"
+        }).ToList();
 
-        var viewModel = new UsersViewModel
-        {
-            Users = userList
-        };
-
-        return View(viewModel);
-    }
-
-    public IActionResult StudyRooms()
-    {
-        return View();
-    }
-
-    public IActionResult Bookings()
-    {
-        return View();
+        return View(new UsersViewModel { Users = userList });
     }
 
     [HttpGet]
@@ -76,17 +54,9 @@ public class AdminController : Controller
     {
         var now = DateTime.Now;
 
-        // User statistics
-        var allUsers = await _userManager.Users.ToListAsync();
-        int adminCount = (await _userManager.GetUsersInRoleAsync("Admin")).Count;
-        int studentCount = allUsers.Count - adminCount;
-        if (studentCount < 0) studentCount = 0;
-
-        // Room statistics
+        var totalUsers = await _userManager.Users.CountAsync();
         var totalRooms = await _context.Rooms.CountAsync();
-        var activeRoomsCount = await _context.Rooms.CountAsync(r => r.IsActive);
 
-        // Find rooms currently occupied right now (Start <= now < End)
         var currentlyOccupiedRoomIds = await _context.Bookings
             .Where(b => b.Start <= now && b.End > now)
             .Select(b => b.RoomId)
@@ -96,16 +66,9 @@ public class AdminController : Controller
         var availableRooms = await _context.Rooms
             .CountAsync(r => r.IsActive && !currentlyOccupiedRoomIds.Contains(r.Id));
 
-        // Booking statistics
         var totalBookings = await _context.Bookings.CountAsync();
         var activeBookings = await _context.Bookings.CountAsync(b => b.End >= now);
 
-        // Calculate utilization rate (percentage of active rooms currently occupied)
-        double utilizationRate = activeRoomsCount > 0
-            ? Math.Round(((double)currentlyOccupiedRoomIds.Count / activeRoomsCount) * 100.0, 1)
-            : 0.0;
-
-        // Most popular rooms
         var topRooms = await _context.Bookings
             .Include(b => b.Room)
             .GroupBy(b => new { b.RoomId, Name = b.Room != null ? b.Room.Name : "Room " + b.RoomId, Code = b.Room != null ? b.Room.RoomCode : "-" })
@@ -119,84 +82,42 @@ public class AdminController : Controller
             .Take(5)
             .ToListAsync();
 
-        // Recent bookings activity
         var recentBookings = await _context.Bookings
             .Include(b => b.Room)
             .Include(b => b.User)
             .OrderByDescending(b => b.Start)
-            .Take(6) // Eqvivalent to LIMIT 6 in SQL
+            .Take(6)
             .ToListAsync();
 
         var model = new StatsViewModel
         {
-            TotalUsers = allUsers.Count,
-            AdminUsers = adminCount,
-            StudentUsers = studentCount,
+            TotalUsers = totalUsers,
             TotalRooms = totalRooms,
             AvailableRooms = availableRooms,
             TotalBookings = totalBookings,
             ActiveBookings = activeBookings,
-            UtilizationRate = utilizationRate,
             TopRooms = topRooms,
             RecentBookings = recentBookings
         };
 
-        _logger.LogInformation("Stats dashboard accessed by {AdminUser}.", User.Identity?.Name);
         return View(model);
     }
 
     [HttpGet]
     public async Task<IActionResult> Roles()
     {
-        // Ensure standard roles exist in database
-        if (!await _roleManager.RoleExistsAsync("Admin"))
-        {
-            await _roleManager.CreateAsync(new IdentityRole("Admin"));
-            _logger.LogInformation("Created missing role 'Admin'.");
-        }
-        if (!await _roleManager.RoleExistsAsync("Student"))
-        {
-            await _roleManager.CreateAsync(new IdentityRole("Student"));
-            _logger.LogInformation("Created missing role 'Student'.");
-        }
-
         var allUsers = await _userManager.Users.ToListAsync();
-        var userRoleList = new List<UserRoleItemViewModel>();
-        int adminCount = 0;
-        int studentCount = 0;
+        var adminUserIds = (await _userManager.GetUsersInRoleAsync("Admin")).Select(u => u.Id).ToHashSet();
 
-        foreach (var user in allUsers)
+        var userRoleList = allUsers.Select(user => new UserRoleItemViewModel
         {
-            var userRoles = await _userManager.GetRolesAsync(user);
-            string roleName = "Student";
+            UserId = user.Id,
+            Name = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            CurrentRole = adminUserIds.Contains(user.Id) ? "Admin" : "Student"
+        }).ToList();
 
-            if (userRoles.Contains("Admin"))
-            {
-                roleName = "Admin";
-                adminCount++;
-            }
-            else
-            {
-                studentCount++;
-            }
-
-            userRoleList.Add(new UserRoleItemViewModel
-            {
-                UserId = user.Id,
-                Email = user.Email ?? user.UserName ?? "No Email",
-                CurrentRole = roleName
-            });
-        }
-
-        var viewModel = new RolesViewModel
-        {
-            AdminCount = adminCount,
-            StudentCount = studentCount,
-            TotalUsers = allUsers.Count,
-            Users = userRoleList
-        };
-
-        return View(viewModel);
+        return View(new RolesViewModel { Users = userRoleList });
     }
 
     [HttpPost]
@@ -229,12 +150,21 @@ public class AdminController : Controller
         }
 
         var currentRoles = await _userManager.GetRolesAsync(user);
-        var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-        if (!removeResult.Succeeded)
+        if (currentRoles.Contains(newRole))
         {
-            _logger.LogError("Failed removing existing roles for user {Email}.", user.Email);
-            TempData["ErrorMessage"] = "Could not update user roles.";
+            TempData["SuccessMessage"] = $"Role for {user.Email} is already '{newRole}'.";
             return RedirectToAction("Roles");
+        }
+
+        if (currentRoles.Any())
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (!removeResult.Succeeded)
+            {
+                _logger.LogError("Failed removing existing roles for user {Email}.", user.Email);
+                TempData["ErrorMessage"] = "Failed to update user role.";
+                return RedirectToAction("Roles");
+            }
         }
 
         var addResult = await _userManager.AddToRoleAsync(user, newRole);
@@ -246,7 +176,7 @@ public class AdminController : Controller
         else
         {
             _logger.LogError("Failed assigning role {NewRole} to user {Email}.", newRole, user.Email);
-            TempData["ErrorMessage"] = string.Join(", ", addResult.Errors.Select(e => e.Description));
+            TempData["ErrorMessage"] = "Failed to assign role to user.";
         }
 
         return RedirectToAction("Roles");
@@ -331,7 +261,7 @@ public class AdminController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = string.Join(", ", result.Errors.Select(e => e.Description));
+            TempData["ErrorMessage"] = "Failed to delete user.";
         }
 
         return RedirectToAction("Users");

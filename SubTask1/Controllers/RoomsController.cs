@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using webapp_f26_exam.DAL;
@@ -5,87 +6,68 @@ using webapp_f26_exam.ViewModels;
 
 namespace webapp_f26_exam.Controllers;
 
+[Authorize]
 public class RoomsController : Controller
 {
     private readonly IRoomRepository _roomRepository;
     private readonly IBookingRepository _bookingRepository;
-    private readonly ILogger<RoomsController> _logger;
 
-    public RoomsController(IRoomRepository roomRepository, IBookingRepository bookingRepository, ILogger<RoomsController> logger)
+    public RoomsController(IRoomRepository roomRepository, IBookingRepository bookingRepository)
     {
         _roomRepository = roomRepository;
         _bookingRepository = bookingRepository;
-        _logger = logger;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? building, string? capacity, string? query, List<string>? amenities)
+    public async Task<IActionResult> Index(string? building, string? capacity, List<string>? amenities, DateTime? start, DateTime? end)
     {
-        var allDbRooms = (await _roomRepository.GetActiveRoomsAsync()).ToList();
-        var dbRooms = allDbRooms.AsEnumerable();
+        var rooms = (await _roomRepository.GetActiveRoomsAsync()).ToList();
 
-        if (!string.IsNullOrWhiteSpace(building) && building != "All")
-        {
-            dbRooms = dbRooms.Where(r => r.Building.Contains(building, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (!string.IsNullOrWhiteSpace(capacity) && capacity != "All")
-        {
-            if (capacity == "1-2") dbRooms = dbRooms.Where(r => r.Capacity <= 2);
-            else if (capacity == "3-6") dbRooms = dbRooms.Where(r => r.Capacity >= 3 && r.Capacity <= 6);
-            else if (capacity == "7+") dbRooms = dbRooms.Where(r => r.Capacity >= 7);
-        }
-
-        // Dynamically collect all available distinct amenities and buildings from active rooms
-        var allAvailableBuildings = allDbRooms
+        var availableBuildings = rooms
             .Select(r => r.Building)
-            .Where(b => !string.IsNullOrWhiteSpace(b))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Distinct()
             .OrderBy(b => b)
             .ToList();
 
-        var allAvailableAmenities = allDbRooms
-            .SelectMany(r => r.Amenities ?? new List<string>())
-            .Where(a => !string.IsNullOrWhiteSpace(a))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+        var availableAmenities = rooms
+            .SelectMany(r => r.Amenities)
+            .Distinct()
             .OrderBy(a => a)
             .ToList();
 
-        if (!allAvailableAmenities.Any())
+        var filteredRooms = rooms.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(building) && building != "All")
         {
-            allAvailableAmenities = new List<string> { "Screen", "Whiteboard", "Camera", "Quiet zone", "Projector" };
+            filteredRooms = filteredRooms.Where(r => r.Building == building);
+        }
+
+        if (!string.IsNullOrEmpty(capacity) && capacity != "All")
+        {
+            filteredRooms = capacity switch
+            {
+                "1-2" => filteredRooms.Where(r => r.Capacity <= 2),
+                "3-6" => filteredRooms.Where(r => r.Capacity >= 3 && r.Capacity <= 6),
+                "7+" => filteredRooms.Where(r => r.Capacity >= 7),
+                _ => filteredRooms
+            };
         }
 
         var selectedAmenities = amenities ?? new List<string>();
-
-        // Multi-select amenity filtering: room must include all selected amenities
         if (selectedAmenities.Any())
         {
-            dbRooms = dbRooms.Where(r =>
-                r.Amenities != null &&
-                selectedAmenities.All(sel => r.Amenities.Any(a => a.Contains(sel, StringComparison.OrdinalIgnoreCase)))
-            );
+            filteredRooms = filteredRooms.Where(r => selectedAmenities.All(a => r.Amenities.Contains(a)));
         }
 
-        if (!string.IsNullOrWhiteSpace(query))
-        {
-            var q = query.Trim();
-            dbRooms = dbRooms.Where(r =>
-                r.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.RoomCode.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Description.Contains(q, StringComparison.OrdinalIgnoreCase)
-            );
-        }
+        var filterStart = start ?? DateTime.Now;
+        var filterEnd = end ?? DateTime.Now.AddHours(1);
 
-        var filteredRooms = dbRooms.ToList();
-
-        var now = DateTime.Now;
-        var activeBookings = (await _bookingRepository.GetActiveBookingsAsync(now)).ToList();
+        var bookings = await _bookingRepository.GetAllBookingsAsync();
+        var conflictingBookings = bookings.Where(b => b.Start < filterEnd && b.End > filterStart).ToList();
 
         var roomItems = filteredRooms.Select(r =>
         {
-            var currentBooking = activeBookings.FirstOrDefault(b => b.RoomId == r.Id);
-            var isAvailable = currentBooking == null;
+            var isAvailable = !conflictingBookings.Any(b => b.RoomId == r.Id);
 
             return new RoomItemViewModel
             {
@@ -96,10 +78,7 @@ public class RoomsController : Controller
                 Floor = r.Floor,
                 Capacity = r.Capacity,
                 Description = r.Description,
-                ImageUrl = $"/media/{r.RoomCode}.jpg",
                 IsAvailableNow = isAvailable,
-                StatusText = isAvailable ? "Available now" : "In use",
-                AvailabilityDetail = isAvailable ? "Ready for immediate booking" : $"Occupied until {currentBooking!.End:HH:mm}",
                 Amenities = r.Amenities ?? new List<string>()
             };
         }).ToList();
@@ -108,20 +87,14 @@ public class RoomsController : Controller
         {
             SelectedBuilding = building ?? "All",
             SelectedCapacity = capacity ?? "All",
-            SearchQuery = query,
             SelectedAmenities = selectedAmenities,
-            AvailableAmenities = allAvailableAmenities,
-            AvailableBuildings = allAvailableBuildings,
-            Rooms = roomItems
+            AvailableAmenities = availableAmenities,
+            AvailableBuildings = availableBuildings,
+            Rooms = roomItems,
+            Start = filterStart,
+            End = filterEnd
         };
 
-        _logger.LogInformation("Loaded {Count} rooms from database for catalog view.", roomItems.Count);
         return View(viewModel);
-    }
-
-    [HttpGet]
-    public IActionResult Details(int id)
-    {
-        return RedirectToAction("Create", "Booking", new { roomId = id });
     }
 }
