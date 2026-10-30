@@ -38,6 +38,7 @@ public class AccountController : Controller
             {
                 await _userManager.AddToRoleAsync(user, "Student");
                 await _signInManager.SignInAsync(user, isPersistent: false);
+                _logger.LogInformation("New user {UserName} ({Email}) registered.", model.UserName, model.Email);
                 return RedirectToAction("Index", "Home");
             }
 
@@ -72,6 +73,7 @@ public class AccountController : Controller
 
                 if (result.Succeeded)
                 {
+                    _logger.LogInformation("User {Email} logged in.", model.Email);
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -87,6 +89,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();
+        _logger.LogInformation("User {UserName} logged out.", User.Identity?.Name);
         return RedirectToAction("Index", "Home");
     }
 }
