@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Our controllers keep using ILogger<T>, Serilog just decides where the messages end up.
 builder.Services.AddSerilog(config => config
     .MinimumLevel.Information()
+    // ASP.NET logs every request and file at Information level; only keep its warnings and errors
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .WriteTo.Console()
     .WriteTo.File($"Logs/app_{DateTime.Now:yyyyMMdd_HHmmss}.log")
     // Hide the many "Executed DbCommand" lines from EF Core
