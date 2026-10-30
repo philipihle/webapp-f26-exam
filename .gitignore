@@ -21,3 +21,6 @@
 .idea/
 .DS_Store
 Thumbs.db
+
+# Serilog log files
+**/Logs/
