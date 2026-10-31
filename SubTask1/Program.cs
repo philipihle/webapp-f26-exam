@@ -1,8 +1,23 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 using webapp_f26_exam.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog: write logs to the console and to a new file in Logs/ each time the app starts.
+// Our controllers keep using ILogger<T>, Serilog just decides where the messages end up.
+builder.Services.AddSerilog(config => config
+    .MinimumLevel.Information()
+    // ASP.NET logs every request and file at Information level; only keep its warnings and errors
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .WriteTo.Console()
+    .WriteTo.File($"Logs/app_{DateTime.Now:yyyyMMdd_HHmmss}.log")
+    // Hide the many "Executed DbCommand" lines from EF Core
+    .Filter.ByExcluding(e => e.Properties.TryGetValue("SourceContext", out var source)
+        && source.ToString().Contains("Microsoft.EntityFrameworkCore.Database.Command")
+        && e.Level == LogEventLevel.Information));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

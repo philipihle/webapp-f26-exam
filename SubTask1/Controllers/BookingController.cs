@@ -34,6 +34,7 @@ public class BookingController : Controller
         var room = await _roomRepository.GetRoomByIdAsync(roomId);
         if (room == null)
         {
+            _logger.LogWarning("Booking form requested for non-existing room {RoomId}", roomId);
             return NotFound();
         }
 
@@ -56,6 +57,7 @@ public class BookingController : Controller
         var room = await _roomRepository.GetRoomByIdAsync(booking.RoomId);
         if (room == null)
         {
+            _logger.LogWarning("Booking rejected: room {RoomId} not found", booking.RoomId);
             ModelState.AddModelError("RoomId", "Room not found");
             return View(booking);
         }
@@ -65,6 +67,7 @@ public class BookingController : Controller
 
         if (booking.Start >= booking.End)
         {
+            _logger.LogWarning("Booking rejected for room {RoomCode}: end {End} is not after start {Start}", room.RoomCode, booking.End, booking.Start);
             ModelState.AddModelError("End", "End time must be after start time.");
             return View(booking);
         }
@@ -72,6 +75,7 @@ public class BookingController : Controller
         // Check for overlapping bookings
         if (await _bookingRepository.HasConflictAsync(booking.RoomId, booking.Start, booking.End))
         {
+            _logger.LogWarning("Booking rejected for room {RoomCode}: time slot {Start} - {End} is already booked", room.RoomCode, booking.Start, booking.End);
             ModelState.AddModelError(string.Empty, "This room is already booked for the selected time slot.");
             return View(booking);
         }
@@ -81,6 +85,7 @@ public class BookingController : Controller
         var success = await _bookingRepository.CreateBookingAsync(booking);
         if (!success)
         {
+            _logger.LogWarning("Booking for room {RoomCode} could not be saved", room.RoomCode);
             ModelState.AddModelError(string.Empty, "Could not save booking. Please try again.");
             return View(booking);
         }
@@ -96,6 +101,7 @@ public class BookingController : Controller
         var booking = await _bookingRepository.GetBookingByIdAsync(id);
         if (booking == null)
         {
+            _logger.LogWarning("Booking confirmation requested for non-existing booking {BookingId}", id);
             return NotFound();
         }
 
@@ -114,14 +120,17 @@ public class BookingController : Controller
         var booking = await _bookingRepository.GetBookingByIdAsync(id);
         if (booking == null)
         {
+            _logger.LogWarning("Cancel rejected: booking {BookingId} not found", id);
             return NotFound();
         }
         if (booking.UserId != _userManager.GetUserId(User))
         {
+            _logger.LogWarning("Cancel rejected: user {User} tried to cancel booking {BookingId} owned by another user", User.Identity?.Name, id);
             return Unauthorized();
         }
         if (booking.Start < DateTime.Now)
         {
+            _logger.LogWarning("Cancel rejected: booking {BookingId} has already started", id);
             TempData["Error"] = "Cannot cancel past or ongoing bookings.";
             return RedirectToAction("MyBookings", "Booking");
         }
