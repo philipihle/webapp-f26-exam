@@ -11,48 +11,31 @@
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>
                 Back to Portal
             </a>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4 pb-2 border-bottom">
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body p-4">
-                    <div class="text-muted small fw-semibold mb-1">Total Users</div>
-                    <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalUsers</div>
-                </div>
-            </div>
+            <div class="text-muted small fw-semibold mb-1">Total Users</div>
+            <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalUsers</div>
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body p-4">
-                    <div class="text-muted small fw-semibold mb-1">Study Rooms</div>
-                    <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalRooms</div>
-                    <small class="text-muted">@Model.AvailableRooms available right now</small>
-                </div>
-            </div>
+            <div class="text-muted small fw-semibold mb-1">Study Rooms</div>
+            <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalRooms</div>
+            <small class="text-muted">@Model.AvailableRooms available right now</small>
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body p-4">
-                    <div class="text-muted small fw-semibold mb-1">Active Bookings</div>
-                    <div class="fs-2 fw-bold text-dark mb-0">@Model.ActiveBookings</div>
-                </div>
-            </div>
+            <div class="text-muted small fw-semibold mb-1">Active Bookings</div>
+            <div class="fs-2 fw-bold text-dark mb-0">@Model.ActiveBookings</div>
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body p-4">
-                    <div class="text-muted small fw-semibold mb-1">Total Bookings</div>
-                    <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalBookings</div>
-                </div>
-            </div>
+            <div class="text-muted small fw-semibold mb-1">Total Bookings</div>
+            <div class="fs-2 fw-bold text-dark mb-0">@Model.TotalBookings</div>
         </div>
     </div>
 
@@ -79,12 +62,10 @@
                                     <tr>
                                         <td>
                                             <span class="fw-semibold text-dark">@room.RoomName</span>
-                                            <span class="badge bg-light text-secondary border ms-1">@room.RoomCode</span>
+                                            <span class="text-muted small d-block">@room.RoomCode</span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                                @room.BookingCount
-                                            </span>
+                                            <span class="text-dark fw-semibold">@room.BookingCount</span>
                                         </td>
                                     </tr>
                                 }
@@ -137,11 +118,11 @@
                                         <td>
                                             @if (isUpcoming)
                                             {
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                                                <span class="text-success fw-semibold small">Active</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Completed</span>
+                                                <span class="text-muted small">Completed</span>
                                             }
                                         </td>
                                     </tr>

@@ -6,7 +6,6 @@
 <div class="container py-4">
     <h2>Edit User</h2>
     <form asp-action="EditUser" method="post">
-        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="UserId"/>
 
 

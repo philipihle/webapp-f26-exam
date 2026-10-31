@@ -1,175 +1,166 @@
 @model webapp_f26_exam.ViewModels.RoomsListViewModel
 @{
-    ViewData["Title"] = "Study Rooms";
+    ViewData["Title"] = "Book a room";
 }
 
 <div class="py-4">
     <div class="row align-items-center justify-content-between mb-4">
         <div class="col-md-8">
-            <h1 class="display-6 fw-bold mb-1">Campus Study Rooms</h1>
-            <p class="text-muted mb-0">Browse and book study rooms, silent pods, and collaboration labs across campus.</p>
+            <h1 class="h2 fw-bold text-dark mb-1">Booking Portal</h1>
+            <p class="text-secondary mb-0">Browse and book study rooms, auditoriums and meeting rooms</p>
         </div>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white">
-    <form asp-controller="Rooms" asp-action="Index" method="get" class="row g-3 align-items-end">
-        <div class="col-md-5">
-            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                <i class="bi bi-building me-1"></i>
-                Building
-            </label>
-            <select name="building" class="form-select bg-light border-0">
-                <option value="All" selected="@(Model.SelectedBuilding == "All")">All Campus Buildings</option>
-                @foreach (var building in Model.AvailableBuildings)
-                {
-                    <option value="@building" selected="@(Model.SelectedBuilding == building)">@building</option>
-                }
-            </select>
-        </div>
-
-        <div class="col-md-5">
-            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                <i class="bi bi-people me-1"></i>
-                Capacity
-            </label>
-            <select name="capacity" class="form-select bg-light border-0">
-                <option value="All" selected="@(Model.SelectedCapacity == "All")">Any Capacity</option>
-                <option value="1-2" selected="@(Model.SelectedCapacity == "1-2")">1-2 people (Pod)</option>
-                <option value="3-6" selected="@(Model.SelectedCapacity == "3-6")">3-6 people (Group)</option>
-                <option value="7+" selected="@(Model.SelectedCapacity == "7+")">7+ people (Auditorium)</option>
-            </select>
-        </div>
-
-        <div class="col-md-2 d-flex gap-2">
-            <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1 shadow-sm">
-                <i class="bi bi-funnel me-1"></i>
-                <span>Filter</span>
-            </button>
-            @if (Model.SelectedBuilding != "All" || Model.SelectedCapacity != "All" || Model.SelectedAmenities.Any())
-            {
-                <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center" title="Reset all filters">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-            }
-        </div>
-        <!-- From Time (Start) -->
-        <div class="col-md-6">
-            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                <i class="bi bi-clock me-1"></i>
-                From (Start time)
-            </label>
-            <input type="datetime-local" name="start"
-                   value="@(Model.Start?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))"
-                   class="form-control bg-light border-0" />
-        </div>
-
-        <!-- To Time (End) -->
-        <div class="col-md-6">
-            <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-1">
-                <i class="bi bi-clock-history me-1"></i>
-                To (End time)
-            </label>
-            <input type="datetime-local" name="end"
-                   value="@(Model.End?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm"))"
-                   class="form-control bg-light border-0" />
-        </div>
-
-        <div class="col-12 mt-3 pt-3 border-top">
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <label class="form-label small fw-semibold text-muted d-flex align-items-center gap-1 mb-0">
-                    <i class="bi bi-laptop me-1"></i>
-                    Equipment &amp; Facilities
+        <form asp-controller="Rooms" asp-action="Index" method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    Building
                 </label>
-                @if (Model.SelectedAmenities.Any())
+                <select name="building" class="form-select bg-light border-0">
+                    <option value="All" selected="@(Model.SelectedBuilding == "All")">All Campus Buildings</option>
+                    @foreach (var building in Model.AvailableBuildings)
+                    {
+                        <option value="@building" selected="@(Model.SelectedBuilding == building)">@building</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    Capacity
+                </label>
+                <select name="capacity" class="form-select bg-light border-0">
+                    <option value="All" selected="@(Model.SelectedCapacity == "All")">Any Capacity</option>
+                    <option value="1-2" selected="@(Model.SelectedCapacity == "1-2")">1-2 people (Pod)</option>
+                    <option value="3-6" selected="@(Model.SelectedCapacity == "3-6")">3-6 people (Group)</option>
+                    <option value="7+" selected="@(Model.SelectedCapacity == "7+")">7+ people (Auditorium)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                    Filter
+                </button>
+                @if (Model.SelectedBuilding != "All" || Model.SelectedCapacity != "All" || Model.SelectedAmenities.Any())
                 {
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle small">
-                        @(Model.SelectedAmenities.Count) selected
-                    </span>
+                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary" title="Reset all filters">
+                        Reset
+                    </a>
                 }
             </div>
-            <div class="d-flex flex-wrap gap-3">
-                @for (int i = 0; i < Model.AvailableAmenities.Count; i++)
-                {
-                    var amenity = Model.AvailableAmenities[i];
-                    var isChecked = Model.SelectedAmenities.Contains(amenity);
-                    <div class="form-check form-check-inline m-0">
-                        <input class="form-check-input" type="checkbox" name="amenities" value="@amenity" id="amenity_@i" @(isChecked ? "checked" : "")/>
-                        <label class="form-check-label small fw-medium text-dark" for="amenity_@i">
-                            @amenity
-                        </label>
-                    </div>
-                }
+
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    From (Start time)
+                </label>
+                <input type="datetime-local" name="start"
+                       value="@(Model.Start?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))"
+                       class="form-control bg-light border-0"/>
             </div>
-        </div>
-    </form>
-</div>
 
-@if (Model.Rooms.Any())
-{
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var room in Model.Rooms)
-        {
-            <div class="col">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column justify-content-between bg-white">
-                    <div>
-                        <div class="p-4 pb-2">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                @if (room.IsAvailableNow)
-                                {
-                                    <span class="badge-available small">Available now</span>
-                                }
-                                else
-                                {
-                                    <span class="badge-occupied small">In use</span>
-                                }
-                                <span class="badge bg-light text-muted border small d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-person me-1"></i>
-                                    @room.Capacity people
-                                </span>
-                            </div>
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    To (End time)
+                </label>
+                <input type="datetime-local" name="end"
+                       value="@(Model.End?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm"))"
+                       class="form-control bg-light border-0"/>
+            </div>
 
-                            <div class="mb-2">
-                                <h5 class="fw-bold mb-0">@room.Name</h5>
-                                <small class="text-muted">@room.Building &bull; Floor @room.Floor - @room.RoomCode</small>
-                            </div>
-
-                            <p class="text-muted small mb-3">@room.Description</p>
-
-                            <div class="d-flex flex-wrap gap-1 mb-2">
-                                @foreach (var amenity in room.Amenities)
-                                {
-                                    <span class="amenity-chip">@amenity</span>
-                                }
-                            </div>
+            <div class="col-12 mt-3 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label small fw-semibold text-muted mb-0">
+                        Equipment &amp; Facilities
+                    </label>
+                    @if (Model.SelectedAmenities.Any())
+                    {
+                        <span class="text-muted small">
+                            (@(Model.SelectedAmenities.Count) selected)
+                        </span>
+                    }
+                </div>
+                <div class="d-flex flex-wrap gap-3">
+                    @* Render filter checkboxes for each available amenity *@
+                    @for (int i = 0; i < Model.AvailableAmenities.Count; i++)
+                    {
+                        var amenity = Model.AvailableAmenities[i];
+                        var isChecked = Model.SelectedAmenities.Contains(amenity);
+                        <div class="form-check form-check-inline m-0">
+                            <input class="form-check-input" type="checkbox" name="amenities" value="@amenity" id="amenity_@i" @(isChecked ? "checked" : "")/>
+                            <label class="form-check-label small fw-medium text-dark" for="amenity_@i">
+                                @amenity
+                            </label>
                         </div>
-                    </div>
-
-                    <div class="p-4 pt-0">
-                        <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id"
-                           asp-route-start="@Model.Start?.ToString("yyyy-MM-ddTHH:mm")"
-                           asp-route-end="@Model.End?.ToString("yyyy-MM-ddTHH:mm")"
-                           class="btn @(room.IsAvailableNow ? "btn-primary shadow-sm" : "btn-outline-primary") btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1">
-                            <i class="bi @(room.IsAvailableNow ? "bi-calendar-check" : "bi-clock") me-1"></i>
-                            <span>@(room.IsAvailableNow ? "Book now" : "Book for later")</span>
-                        </a>
-                    </div>
+                    }
                 </div>
             </div>
-        }
+        </form>
     </div>
-}
-else
-{
-    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
-        <i class="bi bi-search display-5 text-muted mb-3 d-block"></i>
-        <h4 class="fw-bold mb-1">No rooms matched your criteria</h4>
-        <p class="text-muted small mb-3">Try adjusting your search criteria and try again.</p>
-        <div>
-            <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary btn-sm px-4">
-                Reset all filters
-            </a>
+
+    @* Display room cards if any rooms match the filters *@
+    @if (Model.Rooms.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var room in Model.Rooms)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column justify-content-between bg-white">
+                        <div>
+                            <div class="p-4 pb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    @if (room.IsAvailableNow)
+                                    {
+                                        <span class="badge bg-success">Available now</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">In use</span>
+                                    }
+                                    <span class="text-muted small">
+                                        @room.Capacity people
+                                    </span>
+                                </div>
+
+                                <div class="mb-2">
+                                    <h5 class="fw-bold mb-0">@room.Name</h5>
+                                    <small class="text-muted">@room.Building &bull; Floor @room.Floor - @room.RoomCode</small>
+                                </div>
+
+                                <p class="text-muted small mb-3">@room.Description</p>
+
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    @foreach (var amenity in room.Amenities)
+                                    {
+                                        <span class="amenity-chip">@amenity</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 pt-0">
+                            <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.Id"
+                               asp-route-start="@Model.Start?.ToString("yyyy-MM-ddTHH:mm")"
+                               asp-route-end="@Model.End?.ToString("yyyy-MM-ddTHH:mm")"
+                               class="btn @(room.IsAvailableNow ? "btn-primary shadow-sm" : "btn-outline-secondary") btn-sm w-100">
+                                @(room.IsAvailableNow ? "Book now" : "Book for later")
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-    </div>
-}
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+            <h4 class="fw-bold mb-1">No rooms matched your criteria</h4>
+            <p class="text-muted small mb-3">Try adjusting your search criteria and try again.</p>
+            <div>
+                <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary btn-sm px-4">
+                    Reset all filters
+                </a>
+            </div>
+        </div>
+    }
 </div>

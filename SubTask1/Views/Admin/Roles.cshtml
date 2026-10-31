@@ -12,7 +12,6 @@
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>
                 Back to Portal
             </a>
         </div>
@@ -56,27 +55,26 @@
                                     <span class="fw-semibold text-dark">@user.Name</span>
                                     @if (isCurrentUser)
                                     {
-                                        <span class="badge bg-light text-muted border ms-1">You</span>
+                                        <small class="text-muted ms-1">(You)</small>
                                     }
                                     <small class="text-muted d-block">@user.Email</small>
                                 </td>
                                 <td>
                                     @if (user.CurrentRole == "Admin")
                                     {
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        <span class="fw-semibold text-dark">
                                             Admin
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                        <span class="text-muted">
                                             Student
                                         </span>
                                     }
                                 </td>
                                 <td class="text-end">
                                     <form asp-action="SetUserRole" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="userId" value="@user.UserId"/>
                                         @if (user.CurrentRole == "Student")
                                         {

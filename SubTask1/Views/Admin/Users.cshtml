@@ -12,7 +12,6 @@
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>
                 Back to Portal
             </a>
         </div>
@@ -55,11 +54,11 @@
                             <td>
                                 @if (user.Role == "Admin")
                                 {
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Admin</span>
+                                    <span class="fw-semibold text-dark">Admin</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Student</span>
+                                    <span class="text-muted">Student</span>
                                 }
                             </td>
                             <td class="text-end">

@@ -6,7 +6,6 @@
 }
 
 <div class="py-4">
-    <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="h2 fw-bold text-dark mb-1">My Bookings</h1>
@@ -14,7 +13,7 @@
         </div>
         <div>
             <a asp-controller="Rooms" asp-action="Index" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Book a Room
+                Book a Room
             </a>
         </div>
     </div>
@@ -22,7 +21,6 @@
     @if (TempData["Message"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-1"></i>
             @TempData["Message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -30,26 +28,21 @@
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-1"></i>
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Upcoming Sessions Section -->
     <div class="mb-5">
         <h4 class="fw-bold mb-3">Upcoming Sessions</h4>
 
         @if (!activeBookings.Any())
         {
             <div class="card border-0 shadow-sm rounded-4 text-center p-5 bg-white">
-                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mx-auto mb-3" style="width: 56px; height: 56px;">
-                    <i class="bi bi-calendar-x text-muted fs-3"></i>
-                </div>
                 <h5 class="fw-bold mb-1">No upcoming bookings</h5>
                 <p class="text-muted small mb-3">You do not have any active room reservations at the moment.</p>
                 <div>
-                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary">
+                    <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-primary btn-sm">
                         Find a study room
                     </a>
                 </div>
@@ -71,14 +64,15 @@
                                 </div>
 
                                 <div class="bg-light rounded-3 p-3 mb-3">
-                                    <div class="d-flex align-items-center gap-2 text-dark fw-semibold mb-1">
-                                        <i class="bi bi-calendar-event text-primary"></i>
-                                        <span>@booking.Start.ToString("dd.MM.yyyy")</span>
+                                    <div class="text-dark fw-semibold mb-1">
+                                        @booking.Start.ToString("dd.MM.yyyy")
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 text-muted small">
-                                        <i class="bi bi-clock"></i>
+                                    <div class="text-muted small">
                                         <span>@booking.Start.ToString("HH:mm") – @booking.End.ToString("HH:mm")</span>
-                                        <span>&bull; @booking.Purpose</span>
+                                        @if (!string.IsNullOrWhiteSpace(booking.Purpose))
+                                        {
+                                            <span>&bull; @booking.Purpose</span>
+                                        }
                                     </div>
                                 </div>
 
@@ -101,7 +95,6 @@
         }
     </div>
 
-    <!-- Past Reservations Section -->
     @if (pastBookings.Any())
     {
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
@@ -128,7 +121,7 @@
                                 </td>
                                 <td>@booking.Start.ToString("dd.MM.yyyy")</td>
                                 <td>@booking.Start.ToString("HH:mm") – @booking.End.ToString("HH:mm")</td>
-                                <td><span class="badge bg-light text-dark border">@booking.Purpose</span></td>
+                                <td>@booking.Purpose</td>
                             </tr>
                         }
                     </tbody>

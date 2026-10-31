@@ -125,18 +125,16 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 /* Live Availability Status Badges */
 .badge-available {
-  background-color: #ecfdf5;
-  color: #006c4a;
-  border: 1px solid #82f5c1;
+  background-color: var(--color-secondary);
+  color: #ffffff;
   font-weight: 600;
   border-radius: 0.375rem;
   padding: 0.25rem 0.65rem;
 }
 
 .badge-occupied {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background-color: #64748b;
+  color: #ffffff;
   font-weight: 600;
   border-radius: 0.375rem;
   padding: 0.25rem 0.65rem;

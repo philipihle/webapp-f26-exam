@@ -4,121 +4,104 @@
 }
 
 <div class="py-4">
-    <!-- Back Navigation -->
     <div class="mb-4">
-        <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
-            <i class="bi bi-arrow-left me-1"></i>
-            <span>Back to all rooms</span>
+        <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            Back to all rooms
         </a>
     </div>
 
-    <div class="row g-4">
-        <!-- Left: Room Details & Overview -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
-                <div class="position-relative bg-light border-bottom d-flex align-items-center justify-content-center" style="height: 220px;">
-                    <div class="text-center text-muted">
-                        <i class="bi bi-door-open display-3 opacity-50 mb-1 d-block"></i>
-                        <span class="fw-semibold text-secondary">Room @(Model.Room?.RoomCode)</span>
-                    </div>
-                    <span class="badge bg-white text-dark border position-absolute bottom-0 end-0 m-3 small shadow-sm">
-                        Floor @(Model.Room?.Floor) &bull; Room @(Model.Room?.RoomCode)
-                    </span>
-                </div>
-                <div class="p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="row g-0">
+            <div class="col-lg-6 p-4 p-md-5 d-flex flex-column justify-content-between border-bottom border-lg-bottom-0 border-lg-end">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h2 class="display-6 fw-bold mb-0">@Model.Room?.Name</h2>
-                            <p class="text-muted mb-0 fs-5">@Model.Room?.Building &bull; Floor @Model.Room?.Floor &bull; Room @Model.Room?.RoomCode</p>
+                            <h2 class="h3 fw-bold mb-1">@Model.Room?.Name</h2>
+                            <p class="text-muted mb-0">@Model.Room?.Building &bull; Floor @Model.Room?.Floor &bull; @Model.Room?.RoomCode</p>
                         </div>
-                        <span class="badge bg-light text-dark border px-3 py-2 flex-shrink-0 ms-2">
-                            <i class="bi bi-person me-1"></i>
+                        <span class="text-muted small flex-shrink-0 ms-2">
                             @(Model.Room?.Capacity) people max
                         </span>
                     </div>
 
                     <p class="text-secondary my-4">@Model.Room?.Description</p>
 
-                    <h5 class="fw-bold mb-3">Room Amenities &amp; Facilities</h5>
-                    <div class="d-flex flex-wrap gap-2 mb-2">
+                    <h5 class="fw-bold mb-3">Facilities &amp; Equipment</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        @* Render room amenities if available, otherwise display fallback text *@
                         @if (Model.Room?.Amenities != null && Model.Room.Amenities.Any())
                         {
                             @foreach (var amenity in Model.Room.Amenities)
                             {
-                                <span class="badge bg-light text-dark border px-3 py-2 rounded-3 fs-6 fw-normal d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-check-lg text-success"></i>
+                                <span class="amenity-chip">
                                     @amenity
                                 </span>
                             }
                         }
                         else
                         {
-                            <span class="text-muted small">Standard study room equipment</span>
+                            <span class="text-muted small">Standard room equipment</span>
                         }
                     </div>
                 </div>
+
+                <div class="pt-4 mt-4 border-top text-muted small">
+                    Reservation confirmation is sent immediately upon booking.
+                </div>
             </div>
-        </div>
 
-        <!-- Right: Functional Booking Form (With From / To time inputs) -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 80px;">
-                <h4 class="fw-bold mb-1">Reserve this Room</h4>
-                <p class="text-muted small mb-4">Set your start and end time. Choose an available slot for your session.</p>
+            <div class="col-lg-6 p-4 p-md-5 d-flex flex-column justify-content-between">
+                <div>
+                    <h4 class="fw-bold mb-1">Reserve this Room</h4>
+                    <p class="text-muted small mb-4">Set your start and end time. Choose an available slot for your session.</p>
 
-                <form asp-controller="Booking" asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="RoomId" />
+                    <form asp-controller="Booking" asp-action="Create" method="post">
+                        <input type="hidden" asp-for="RoomId" />
 
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div asp-validation-summary="All" class="alert alert-danger py-2 px-3 small border-0 rounded-3 mb-3"></div>
-                    }
+                        @* Display model validation errors if form submission fails *@
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All" class="alert alert-danger py-2 px-3 small border-0 rounded-3 mb-3"></div>
+                        }
 
-                    <!-- From Time (Start) -->
-                    <div class="mb-3">
-                        <label asp-for="Start" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
-                            <i class="bi bi-clock me-1"></i>
-                            From (Start time)
-                        </label>
-                        <input type="datetime-local" asp-for="Start"
-                               value="@Model.Start.ToString("yyyy-MM-ddTHH:mm")"
-                               class="form-control bg-light border-0 py-2" required />
-                        <span asp-validation-for="Start" class="text-danger small"></span>
-                    </div>
+                        <div class="mb-3">
+                            <label asp-for="Start" class="form-label small fw-semibold text-muted">
+                                From (Start time)
+                            </label>
+                            <input type="datetime-local" asp-for="Start"
+                                   value="@Model.Start.ToString("yyyy-MM-ddTHH:mm")"
+                                   class="form-control bg-light border-0 py-2" required />
+                            <span asp-validation-for="Start" class="text-danger small"></span>
+                        </div>
 
-                    <!-- To Time (End) -->
-                    <div class="mb-3">
-                        <label asp-for="End" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
-                            <i class="bi bi-clock-history me-1"></i>
-                            To (End time)
-                        </label>
-                        <input type="datetime-local" asp-for="End"
-                               value="@Model.End.ToString("yyyy-MM-ddTHH:mm")"
-                               class="form-control bg-light border-0 py-2" required />
-                        <span asp-validation-for="End" class="text-danger small"></span>
-                    </div>
+                        <div class="mb-3">
+                            <label asp-for="End" class="form-label small fw-semibold text-muted">
+                                To (End time)
+                            </label>
+                            <input type="datetime-local" asp-for="End"
+                                   value="@Model.End.ToString("yyyy-MM-ddTHH:mm")"
+                                   class="form-control bg-light border-0 py-2" required />
+                            <span asp-validation-for="End" class="text-danger small"></span>
+                        </div>
 
-                    <!-- Purpose -->
-                    <div class="mb-4">
-                        <label asp-for="Purpose" class="form-label small fw-semibold text-muted d-flex align-items-center gap-1">
-                            <i class="bi bi-flag me-1"></i>
-                            Purpose
-                        </label>
-                        <select asp-for="Purpose" class="form-select bg-light border-0 py-2">
-                            <option value="Study">Individual / Group Study</option>
-                            <option value="Meeting">Meeting</option>
-                            <option value="Presentation">Presentation Practice</option>
-                            <option value="Group Project">Group Project</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+                        <div class="mb-4">
+                            <label asp-for="Purpose" class="form-label small fw-semibold text-muted">
+                                Purpose
+                            </label>
+                            <select asp-for="Purpose" class="form-select bg-light border-0 py-2">
+                                <option value="Study">Individual / Group Study</option>
+                                <option value="Meeting">Meeting</option>
+                                <option value="Presentation">Presentation</option>
+                                <option value="Group Project">Group Project</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-inline-flex align-items-center justify-content-center gap-1 shadow-sm">
-                        <i class="bi bi-calendar-check me-1"></i>
-                        <span>Confirm Reservation</span>
-                    </button>
-                </form>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                            Confirm Reservation
+                        </button>
+                    </form>
+                </div>
 
                 <div class="text-center mt-3 small text-muted">
                     You can view and manage your reservation under My Bookings.
