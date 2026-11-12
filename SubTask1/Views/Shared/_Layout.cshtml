@@ -25,9 +25,6 @@
             <div class="container-fluid px-3 px-lg-4">
 
                 <a class="navbar-brand d-flex align-items-center gap-2 m-0" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span class="p-1 rounded-2 bg-dark text-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                        <i class="bi bi-door-open fs-6"></i>
-                    </span>
                     <span class="fw-bold">BookingPortal</span>
                 </a>
 
@@ -42,13 +39,11 @@
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center ms-lg-3 gap-1">
                             <li class="nav-item">
                                 <a class="nav-link px-3 py-2 text-dark d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Rooms" asp-action="Index">
-                                    <i class="bi bi-search text-muted"></i>
                                     <span>Find a room</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link px-3 py-2 text-dark d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Booking" asp-action="MyBookings">
-                                    <i class="bi bi-calendar-event text-muted"></i>
                                     <span>My Bookings</span>
                                 </a>
                             </li>
@@ -60,8 +55,7 @@
                         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
                             @if (User.IsInRole("Admin"))
                             {
-                                <a class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Admin" asp-action="Index">
-                                    <i class="bi bi-shield-check"></i>
+                                <a class="fw-semibold text-dark text-decoration-none" asp-area="" asp-controller="Admin" asp-action="Index">
                                     <span>Admin Portal</span>
                                 </a>
                             }
@@ -91,17 +85,12 @@
     </div>
 
     <footer class="border-top py-4 mt-auto bg-white">
-        <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
-            <div class="mb-2 mb-md-0">
-                &copy; 2026 <strong>BookingPortal</strong>
+        <div class="container-fluid px-3 px-lg-4 d-flex justify-content-between align-items-center text-muted small">
+            <div>
+                <strong>BookingPortal</strong>
             </div>
-            <div class="d-flex gap-3">
-                <a asp-area="" asp-controller="Rooms" asp-action="Index" class="text-muted text-decoration-none">Study Rooms</a>
+            <div>
                 <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy &amp; Terms</a>
-                @if (User.IsInRole("Admin"))
-                {
-                    <a asp-area="" asp-controller="Admin" asp-action="Index" class="text-muted text-decoration-none">Admin Area</a>
-                }
             </div>
         </div>
     </footer>

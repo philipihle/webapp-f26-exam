@@ -81,11 +81,18 @@
                                        class="btn btn-outline-secondary btn-sm">
                                         View Details
                                     </a>
-                                    <a asp-controller="Booking" asp-action="CancelBooking" asp-route-id="@booking.Id"
-                                       class="btn btn-outline-danger btn-sm"
-                                       onclick="return confirm('Are you sure you want to cancel this booking?');">
-                                        Cancel
-                                    </a>
+                                    @if (booking.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                    {
+                                        <form asp-controller="Booking" asp-action="CancelBooking" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Booking" asp-action="Leave" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Leave</button>
+                                        </form>
+                                    }
                                 </div>
                             </div>
                         </div>

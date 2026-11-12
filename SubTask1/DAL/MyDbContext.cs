@@ -14,6 +14,7 @@ public class MyDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Room> Rooms { get; set; }
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<BookingParticipant> BookingParticipants { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

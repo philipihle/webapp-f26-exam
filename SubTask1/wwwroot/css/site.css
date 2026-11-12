@@ -50,7 +50,6 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 }
 
 .navbar .nav-link:hover {
-  background-color: var(--color-surface-low);
   color: var(--color-primary) !important;
 }
 
