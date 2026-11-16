@@ -19,7 +19,15 @@ public class RoomsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? building, string? capacity, List<string>? amenities, DateTime? start, DateTime? end)
+    public async Task<IActionResult> Index(
+        string? building,
+        string? roomType,
+        List<string>? amenities,
+        DateTime? start,
+        DateTime? end,
+        string? date = null,
+        string? from = null,
+        string? to = null)
     {
         var rooms = (await _roomRepository.GetActiveRoomsAsync()).ToList();
 
@@ -27,6 +35,14 @@ public class RoomsController : Controller
             .Select(r => r.Building)
             .Distinct()
             .OrderBy(b => b)
+            .ToList();
+
+        var availableRoomTypes = rooms
+            .Select(r => r.RoomType)
+            .Where(t => !string.IsNullOrEmpty(t))
+            .Select(t => t!)
+            .Distinct()
+            .OrderBy(t => t)
             .ToList();
 
         var availableAmenities = rooms
@@ -42,15 +58,9 @@ public class RoomsController : Controller
             filteredRooms = filteredRooms.Where(r => r.Building == building);
         }
 
-        if (!string.IsNullOrEmpty(capacity) && capacity != "All")
+        if (!string.IsNullOrEmpty(roomType) && roomType != "All")
         {
-            filteredRooms = capacity switch
-            {
-                "1-2" => filteredRooms.Where(r => r.Capacity <= 2),
-                "3-6" => filteredRooms.Where(r => r.Capacity >= 3 && r.Capacity <= 6),
-                "7+" => filteredRooms.Where(r => r.Capacity >= 7),
-                _ => filteredRooms
-            };
+            filteredRooms = filteredRooms.Where(r => r.RoomType == roomType);
         }
 
         var selectedAmenities = amenities ?? new List<string>();
@@ -59,8 +69,29 @@ public class RoomsController : Controller
             filteredRooms = filteredRooms.Where(r => selectedAmenities.All(a => r.Amenities.Contains(a)));
         }
 
-        var filterStart = start ?? DateTime.Now;
-        var filterEnd = end ?? DateTime.Now.AddHours(1);
+        DateTime filterStart;
+        DateTime filterEnd;
+
+        if (!string.IsNullOrEmpty(date))
+        {
+            var fromStr = !string.IsNullOrEmpty(from) ? from : DateTime.Now.ToString("HH:00");
+            var toStr = !string.IsNullOrEmpty(to) ? to : DateTime.Now.AddHours(1).ToString("HH:00");
+
+            if (!DateTime.TryParse($"{date}T{fromStr}", out filterStart))
+            {
+                filterStart = start ?? DateTime.Now;
+            }
+
+            if (!DateTime.TryParse($"{date}T{toStr}", out filterEnd))
+            {
+                filterEnd = end ?? filterStart.AddHours(1);
+            }
+        }
+        else
+        {
+            filterStart = start ?? DateTime.Now;
+            filterEnd = end ?? DateTime.Now.AddHours(1);
+        }
 
         var bookings = await _bookingRepository.GetAllBookingsAsync();
         var conflictingBookings = bookings.Where(b => b.Start < filterEnd && b.End > filterStart).ToList();
@@ -77,6 +108,7 @@ public class RoomsController : Controller
                 Building = r.Building,
                 Floor = r.Floor,
                 Capacity = r.Capacity,
+                RoomType = r.RoomType ?? string.Empty,
                 Description = r.Description,
                 IsAvailableNow = isAvailable,
                 Amenities = r.Amenities ?? new List<string>()
@@ -86,10 +118,11 @@ public class RoomsController : Controller
         var viewModel = new RoomsListViewModel
         {
             SelectedBuilding = building ?? "All",
-            SelectedCapacity = capacity ?? "All",
+            SelectedRoomType = roomType ?? "All",
             SelectedAmenities = selectedAmenities,
             AvailableAmenities = availableAmenities,
             AvailableBuildings = availableBuildings,
+            AvailableRoomTypes = availableRoomTypes,
             Rooms = roomItems,
             Start = filterStart,
             End = filterEnd

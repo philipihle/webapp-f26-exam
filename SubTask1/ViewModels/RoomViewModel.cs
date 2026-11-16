@@ -8,6 +8,7 @@ public class RoomItemViewModel
     public string Building { get; set; } = string.Empty;
     public int Floor { get; set; }
     public int Capacity { get; set; }
+    public string RoomType { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public bool IsAvailableNow { get; set; }
     public List<string> Amenities { get; set; } = new();
@@ -16,10 +17,11 @@ public class RoomItemViewModel
 public class RoomsListViewModel
 {
     public string? SelectedBuilding { get; set; }
-    public string? SelectedCapacity { get; set; }
+    public string? SelectedRoomType { get; set; }
     public List<string> SelectedAmenities { get; set; } = new();
     public List<string> AvailableAmenities { get; set; } = new();
     public List<string> AvailableBuildings { get; set; } = new();
+    public List<string> AvailableRoomTypes { get; set; } = new();
     public List<RoomItemViewModel> Rooms { get; set; } = new();
     public DateTime? Start { get; set; }
     public DateTime? End { get; set; }

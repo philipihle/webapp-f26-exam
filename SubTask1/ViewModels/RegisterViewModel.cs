@@ -6,7 +6,7 @@ public class RegisterViewModel
 {
 
     [Required]
-    [Display(Name = "User Name")]
+    [Display(Name = "Full Name")]
     public string UserName { get; set; } = string.Empty;
 
     [Required]

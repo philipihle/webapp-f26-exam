@@ -28,13 +28,14 @@
 
             <div class="col-md-5">
                 <label class="form-label small fw-semibold text-muted mb-1">
-                    Capacity
+                    Room type:
                 </label>
-                <select name="capacity" class="form-select bg-light border-0">
-                    <option value="All" selected="@(Model.SelectedCapacity == "All")">Any Capacity</option>
-                    <option value="1-2" selected="@(Model.SelectedCapacity == "1-2")">1-2 people (Pod)</option>
-                    <option value="3-6" selected="@(Model.SelectedCapacity == "3-6")">3-6 people (Group)</option>
-                    <option value="7+" selected="@(Model.SelectedCapacity == "7+")">7+ people (Auditorium)</option>
+                <select name="roomType" class="form-select bg-light border-0">
+                    <option value="All" selected="@(Model.SelectedRoomType == "All" || string.IsNullOrEmpty(Model.SelectedRoomType))">All Room Types</option>
+                    @foreach (var type in Model.AvailableRoomTypes)
+                    {
+                        <option value="@type" selected="@(Model.SelectedRoomType == type)">@type</option>
+                    }
                 </select>
             </div>
 
@@ -42,7 +43,7 @@
                 <button type="submit" class="btn btn-primary w-100 shadow-sm">
                     Filter
                 </button>
-                @if (Model.SelectedBuilding != "All" || Model.SelectedCapacity != "All" || Model.SelectedAmenities.Any())
+                @if (Model.SelectedBuilding != "All" || (Model.SelectedRoomType != "All" && !string.IsNullOrEmpty(Model.SelectedRoomType)) || Model.SelectedAmenities.Any())
                 {
                     <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary" title="Reset all filters">
                         Reset
@@ -50,24 +51,35 @@
                 }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    Date
+                </label>
+                <input type="date" name="date"
+                       value="@(Model.Start?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       class="form-control bg-light border-0"/>
+            </div>
+
+            <div class="col-md-4">
                 <label class="form-label small fw-semibold text-muted mb-1">
                     From (Start time)
                 </label>
-                <input type="datetime-local" name="start"
-                       value="@(Model.Start?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))"
-                       class="form-control bg-light border-0"/>
+                <input type="time" name="from"
+                       value="@(Model.Start?.ToString("HH:mm") ?? DateTime.Now.ToString("HH:00"))"
+                       min="00:00" step="900"
+                                              class="form-control bg-light border-0"/>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label small fw-semibold text-muted mb-1">
                     To (End time)
                 </label>
-                <input type="datetime-local" name="end"
-                       value="@(Model.End?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm"))"
+                <input type="time" name="to"
+                       value="@(Model.End?.ToString("HH:mm") ?? DateTime.Now.AddHours(1).ToString("HH:00"))"
+                       min="@(Model.Start?.ToString("HH:mm") ?? "00:00")" step="900"
                        class="form-control bg-light border-0"/>
             </div>
-
             <div class="col-12 mt-3 pt-3 border-top">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label small fw-semibold text-muted mb-0">
@@ -124,6 +136,10 @@
 
                                 <div class="mb-2">
                                     <h5 class="fw-bold mb-0">@room.Name</h5>
+                                    @if (!string.IsNullOrEmpty(room.RoomType))
+                                    {
+                                        <div class="fw-semibold text-dark small">@room.RoomType</div>
+                                    }
                                     <small class="text-muted">@room.Building &bull; Floor @room.Floor - @room.RoomCode</small>
                                 </div>
 

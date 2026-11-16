@@ -10,13 +10,17 @@
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
         <div class="row g-0">
             <div class="col-lg-6 p-4 p-md-5 d-flex flex-column justify-content-between border-bottom border-lg-bottom-0 border-lg-end">
                 <div>
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h2 class="h3 fw-bold mb-1">@Model.Room?.Name</h2>
+                            @if (!string.IsNullOrEmpty(Model.Room?.RoomType))
+                            {
+                                <div class="fw-semibold text-dark small mb-1">@Model.Room.RoomType</div>
+                            }
                             <p class="text-muted mb-0">@Model.Room?.Building &bull; Floor @Model.Room?.Floor &bull; @Model.Room?.RoomCode</p>
                         </div>
                         <span class="text-muted small flex-shrink-0 ms-2">
@@ -28,7 +32,6 @@
 
                     <h5 class="fw-bold mb-3">Facilities &amp; Equipment</h5>
                     <div class="d-flex flex-wrap gap-2">
-                        @* Render room amenities if available, otherwise display fallback text *@
                         @if (Model.Room?.Amenities != null && Model.Room.Amenities.Any())
                         {
                             @foreach (var amenity in Model.Room.Amenities)
@@ -58,30 +61,32 @@
                     <form asp-controller="Booking" asp-action="Create" method="post">
                         <input type="hidden" asp-for="RoomId" />
 
-                        @* Display model validation errors if form submission fails *@
                         @if (!ViewData.ModelState.IsValid)
                         {
-                            <div asp-validation-summary="All" class="alert alert-danger py-2 px-3 small border-0 rounded-3 mb-3"></div>
+                            <div asp-validation-summary="All"
+                                 class="alert alert-danger py-2 px-3 small border-0 rounded-3 mb-3"></div>
                         }
 
                         <div class="mb-3">
-                            <label asp-for="Start" class="form-label small fw-semibold text-muted">
-                                From (Start time)
-                            </label>
-                            <input type="datetime-local" asp-for="Start"
-                                   value="@Model.Start.ToString("yyyy-MM-ddTHH:mm")"
-                                   class="form-control bg-light border-0 py-2" required />
-                            <span asp-validation-for="Start" class="text-danger small"></span>
+                            <label class="form-label small fw-semibold text-muted">Date</label>
+                            <input type="date" name="bookingDate" class="form-control bg-light border-0 py-2"
+                                   value="@Model.Start.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                   required />
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="End" class="form-label small fw-semibold text-muted">
-                                To (End time)
-                            </label>
-                            <input type="datetime-local" asp-for="End"
-                                   value="@Model.End.ToString("yyyy-MM-ddTHH:mm")"
-                                   class="form-control bg-light border-0 py-2" required />
-                            <span asp-validation-for="End" class="text-danger small"></span>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-muted">From (Start time)</label>
+                                <input type="time" name="startTime" class="form-control bg-light border-0 py-2"
+                                       value="@Model.Start.ToString("HH:mm")" min="00:00" step="900" required />
+                                <span asp-validation-for="Start" class="text-danger small"></span>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-muted">To (End time)</label>
+                                <input type="time" name="endTime" class="form-control bg-light border-0 py-2"
+                                       value="@Model.End.ToString("HH:mm")" min="00:00" step="900" required />
+                                <span asp-validation-for="End" class="text-danger small"></span>
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -89,12 +94,19 @@
                                 Purpose
                             </label>
                             <select asp-for="Purpose" class="form-select bg-light border-0 py-2">
-                                <option value="Study">Individual / Group Study</option>
+                                <option value="Study">Individual Study</option>
+                                <option value="Group Project">Group Project</option>
                                 <option value="Meeting">Meeting</option>
                                 <option value="Presentation">Presentation</option>
-                                <option value="Group Project">Group Project</option>
                                 <option value="Other">Other</option>
                             </select>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="JoinFlag" id="joinFlag" />
+                            <label class="form-check-label small text-dark" for="joinFlag">
+                                Allow other students to join this session
+                            </label>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
@@ -106,6 +118,63 @@
                 <div class="text-center mt-3 small text-muted">
                     You can view and manage your reservation under My Bookings.
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Upcoming Sessions in this Room</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in ((IEnumerable<Booking>)ViewBag.UpcomingBookings ?? Enumerable.Empty<Booking>()))
+                        {
+                            var participantCount = 1 + (b.Participants?.Count ?? 0);
+                            var isFull = b.Room != null && participantCount >= b.Room.Capacity;
+
+                            <tr>
+                                <td class="fw-semibold text-dark">@(b.User?.UserName ?? "Student")</td>
+                                <td>@b.Start.ToString("yyyy-MM-dd")</td>
+                                <td>@b.Start.ToString("HH:mm")</td>
+                                <td>@b.End.ToString("HH:mm")</td>
+                                <td class="text-end">
+                                    @if (!b.JoinFlag)
+                                    {
+                                        <span class="text-muted small">Private</span>
+                                    }
+                                    else if (b.UserId == Model.UserId)
+                                    {
+                                        <span class="badge bg-secondary">Host</span>
+                                    }
+                                    else if (b.Participants != null && b.Participants.Any(p => p.UserId == Model.UserId))
+                                    {
+                                        <span class="badge bg-success">Joined</span>
+                                    }
+                                    else if (isFull)
+                                    {
+                                        <span class="text-danger small fw-semibold">Full</span>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Booking" asp-action="Join" asp-route-id="@b.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Join</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

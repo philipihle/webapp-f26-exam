@@ -1,18 +1,45 @@
 @model webapp_f26_exam.Models.Booking
 @{
-    ViewData["Title"] = "Booking Confirmed";
+    ViewData["Title"] = "Booking Details";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var isOwner = Model.UserId == currentUserId;
+    var participantCount = (Model.Participants?.Count ?? 0) + 1;
+    var maxCapacity = Model.Room?.Capacity ?? 0;
 }
 
 <div class="row justify-content-center py-4">
     <div class="col-md-8 col-lg-6">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <div class="text-center mb-4">
             <h2 class="fw-bold mb-1">Booking Confirmed</h2>
-            <p class="text-muted">Your study room has been booked successfully.</p>
+            <p class="text-muted">Your study room details and session settings.</p>
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white border-bottom py-3">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <span class="text-muted small">Booking #@Model.Id</span>
+                @if (Model.JoinFlag)
+                {
+                    <span class="badge bg-success">Open for others to join</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Private session</span>
+                }
             </div>
             <div class="card-body p-4">
                 <div class="row g-3">
@@ -34,11 +61,61 @@
                         <small class="text-muted d-block">Time</small>
                         <span class="fw-semibold">@Model.Start.ToString("HH:mm") – @Model.End.ToString("HH:mm")</span>
                     </div>
-                    <div class="col-12">
+                    <div class="col-6">
                         <small class="text-muted d-block">Purpose</small>
                         <span class="fw-semibold">@Model.Purpose</span>
                     </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Capacity</small>
+                        <span class="fw-semibold">@participantCount / @maxCapacity spots taken</span>
+                    </div>
                 </div>
+
+                @if (isOwner)
+                {
+                    <hr class="my-4" />
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-0">Session Visibility</h6>
+                            <small class="text-muted">Allow other students to join this study session.</small>
+                        </div>
+                        <form asp-controller="Booking" asp-action="ToggleJoinFlag" asp-route-id="@Model.Id" method="post">
+                            @if (Model.JoinFlag)
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Change to Private</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Allow others to join</button>
+                            }
+                        </form>
+                    </div>
+                }
+
+                @if (Model.Participants != null && Model.Participants.Any())
+                {
+                    <hr class="my-4" />
+                    <h6 class="fw-bold mb-3">Participants (@Model.Participants.Count)</h6>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var participant in Model.Participants)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <div>
+                                    <span class="fw-medium">@(participant.User?.UserName ?? participant.UserId)</span>
+                                    <small class="text-muted d-block">Joined @participant.JoinedAtDateTime.ToString("dd.MM HH:mm")</small>
+                                </div>
+                                @if (isOwner)
+                                {
+                                    <form asp-controller="Booking" asp-action="RemoveParticipant" method="post" class="d-inline">
+                                        <input type="hidden" name="bookingId" value="@Model.Id" />
+                                        <input type="hidden" name="participantUserId" value="@participant.UserId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    </form>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
             </div>
             <div class="card-footer bg-white border-top p-3 d-flex justify-content-between">
                 <a asp-controller="Booking" asp-action="MyBookings" class="btn btn-outline-secondary">

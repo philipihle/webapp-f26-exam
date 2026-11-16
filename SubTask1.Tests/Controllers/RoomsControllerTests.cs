@@ -17,9 +17,9 @@ public class RoomsControllerTests
     {
         var rooms = new List<Room>
         {
-            new() { Id = 1, Name = "Small room", Building = "P35", Capacity = 2, Amenities = new() { "Whiteboard" } },
-            new() { Id = 2, Name = "Group room", Building = "P35", Capacity = 6, Amenities = new() { "Whiteboard", "Screen" } },
-            new() { Id = 3, Name = "Big room", Building = "P46", Capacity = 10, Amenities = new() { "Screen" } }
+            new() { Id = 1, Name = "Small room", Building = "P35", Capacity = 2, RoomType = "Pod", Amenities = new() { "Whiteboard" } },
+            new() { Id = 2, Name = "Group room", Building = "P35", Capacity = 6, RoomType = "Group Room", Amenities = new() { "Whiteboard", "Screen" } },
+            new() { Id = 3, Name = "Big room", Building = "P46", Capacity = 10, RoomType = "Auditorium", Amenities = new() { "Screen" } }
         };
         _roomRepository.GetActiveRoomsAsync().Returns(rooms);
         _bookingRepository.GetAllBookingsAsync().Returns(new List<Booking>());
@@ -35,9 +35,9 @@ public class RoomsControllerTests
 
     // Positive: searching with several filters should only return the room that matches all of them
     [Fact]
-    public async Task Index_WhenFilteringOnBuildingCapacityAndAmenity_ReturnsOnlyMatchingRoom()
+    public async Task Index_WhenFilteringOnBuildingRoomTypeAndAmenity_ReturnsOnlyMatchingRoom()
     {
-        var result = await _controller.Index("P35", "3-6", new List<string> { "Screen" }, null, null);
+        var result = await _controller.Index("P35", "Group Room", new List<string> { "Screen" }, null, null);
 
         var model = GetModel(result);
         var room = Assert.Single(model.Rooms);
@@ -48,7 +48,7 @@ public class RoomsControllerTests
     [Fact]
     public async Task Index_WhenNoRoomMatchesFilters_ReturnsEmptyList()
     {
-        var result = await _controller.Index("P46", "1-2", null, null, null);
+        var result = await _controller.Index("P46", "Pod", null, null, null);
 
         var model = GetModel(result);
         Assert.Empty(model.Rooms);
