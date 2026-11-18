@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -138,6 +139,9 @@ public class BookingController : Controller
             _logger.LogWarning("Booking confirmation requested for non-existing booking {BookingId}", id);
             return NotFound();
         }
+
+        var messages = await _bookingRepository.GetMessagesByBookingIdAsync(id);
+        ViewBag.ChatMessages = messages;
 
         return View(booking);
     }
@@ -311,5 +315,95 @@ public class BookingController : Controller
         }
 
         return RedirectToAction("BookingConfirmed", "Booking", new { id = id });
+    }
+
+    private bool IsUserParticipating(Booking booking, string? userId)
+    {
+        if (string.IsNullOrEmpty(userId)) return false;
+        if (booking.UserId == userId) return true;
+        return booking.Participants?.Any(p => p.UserId == userId) ?? false;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SendChatMessage(int bookingId, string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            TempData["ChatError"] = "Message cannot be empty.";
+            return RedirectToAction("BookingConfirmed", new { id = bookingId });
+        }
+
+        if (message.Trim().Length > 500)
+        {
+            TempData["ChatError"] = "Message cannot exceed 500 characters.";
+            return RedirectToAction("BookingConfirmed", new { id = bookingId });
+        }
+
+        var booking = await _bookingRepository.GetBookingByIdAsync(bookingId);
+        if (booking == null) return NotFound();
+        var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!IsUserParticipating(booking, currentUserId))
+        {
+            return Forbid();
+        }
+        var chatMessage = new BookingChat
+        {
+            BookingId = bookingId,
+            UserId = currentUserId!,
+            Message = message.Trim(),
+            SentAt = DateTime.Now
+        };
+        var success = await _bookingRepository.AddMessageAsync(chatMessage);
+        if (!success)
+        {
+            TempData["ChatError"] = "Failed to send message.";
+        }
+        return RedirectToAction("BookingConfirmed", new { id = bookingId });
+    }
+    [HttpPost]
+    public async Task<IActionResult> EditChatMessage(int messageId, string newMessage)
+    {
+        var message = await _bookingRepository.GetMessageByIdAsync(messageId);
+        if (message == null) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(newMessage))
+        {
+            TempData["ChatError"] = "Message cannot be empty.";
+            return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
+        }
+
+        if (newMessage.Trim().Length > 500)
+        {
+            TempData["ChatError"] = "Message cannot exceed 500 characters.";
+            return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
+        }
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (message.UserId != currentUserId)
+        {
+            return Forbid();
+        }
+        message.Message = newMessage.Trim();
+        message.UpdatedAt = DateTime.Now;
+        await _bookingRepository.UpdateMessageAsync(message);
+        return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
+    }
+    [HttpPost]
+    public async Task<IActionResult> DeleteChatMessage(int messageId)
+    {
+        var message = await _bookingRepository.GetMessageByIdAsync(messageId);
+        if (message == null) return NotFound();
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var booking = await _bookingRepository.GetBookingByIdAsync(message.BookingId);
+        bool isAuthor = message.UserId == currentUserId;
+        bool isOrganizer = booking != null && booking.UserId == currentUserId;
+        bool isAdmin = User.IsInRole("Admin");
+
+        if (!isAuthor && !isOrganizer && !isAdmin)
+        {
+            return Forbid();
+        }
+        await _bookingRepository.DeleteMessageAsync(messageId);
+        return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
     }
 }

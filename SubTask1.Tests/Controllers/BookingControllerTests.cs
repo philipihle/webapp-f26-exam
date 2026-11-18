@@ -177,4 +177,109 @@ public class BookingControllerTests
         Assert.True(booking.JoinFlag);
         await _bookingRepository.Received(1).UpdateBookingAsync(booking);
     }
+
+    [Fact]
+    public async Task SendChatMessage_WhenUserIsNotParticipant_ReturnsForbid()
+    {
+        // Arrange
+        var booking = new Booking
+        {
+            Id = 7,
+            UserId = "organizer-id",
+            Participants = new List<BookingParticipant>()
+        };
+        _bookingRepository.GetBookingByIdAsync(7).Returns(booking);
+
+        // Act
+        var result = await _controller.SendChatMessage(7, "Hello everyone");
+
+        // Assert
+        Assert.IsType<ForbidResult>(result);
+        await _bookingRepository.DidNotReceive().AddMessageAsync(Arg.Any<BookingChat>());
+    }
+
+    [Fact]
+    public async Task SendChatMessage_WhenUserIsParticipant_AddsMessageAndRedirects()
+    {
+        // Arrange
+        var booking = new Booking
+        {
+            Id = 7,
+            UserId = "organizer-id",
+            Participants = new List<BookingParticipant>
+            {
+                new() { BookingId = 7, UserId = UserId }
+            }
+        };
+        _bookingRepository.GetBookingByIdAsync(7).Returns(booking);
+        _bookingRepository.AddMessageAsync(Arg.Any<BookingChat>()).Returns(true);
+
+        // Act
+        var result = await _controller.SendChatMessage(7, "Joining the study session!");
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("BookingConfirmed", redirect.ActionName);
+        await _bookingRepository.Received(1).AddMessageAsync(Arg.Is<BookingChat>(m =>
+            m.BookingId == 7 &&
+            m.UserId == UserId &&
+            m.Message == "Joining the study session!"));
+    }
+
+    [Fact]
+    public async Task SendChatMessage_WhenMessageIsEmpty_RedirectsWithChatError()
+    {
+        // Act
+        var result = await _controller.SendChatMessage(7, "   ");
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("BookingConfirmed", redirect.ActionName);
+        Assert.Equal("Message cannot be empty.", _controller.TempData["ChatError"]);
+        await _bookingRepository.DidNotReceive().AddMessageAsync(Arg.Any<BookingChat>());
+    }
+
+    [Fact]
+    public async Task EditChatMessage_WhenUserIsNotAuthor_ReturnsForbid()
+    {
+        // Arrange
+        var message = new BookingChat
+        {
+            Id = 15,
+            BookingId = 7,
+            UserId = "other-user",
+            Message = "Original text"
+        };
+        _bookingRepository.GetMessageByIdAsync(15).Returns(message);
+
+        // Act
+        var result = await _controller.EditChatMessage(15, "Unauthorized update");
+
+        // Assert
+        Assert.IsType<ForbidResult>(result);
+        await _bookingRepository.DidNotReceive().UpdateMessageAsync(Arg.Any<BookingChat>());
+    }
+
+    [Fact]
+    public async Task DeleteChatMessage_WhenUserIsAuthor_DeletesMessageAndRedirects()
+    {
+        // Arrange
+        var message = new BookingChat
+        {
+            Id = 20,
+            BookingId = 7,
+            UserId = UserId,
+            Message = "My message"
+        };
+        _bookingRepository.GetMessageByIdAsync(20).Returns(message);
+        _bookingRepository.DeleteMessageAsync(20).Returns(true);
+
+        // Act
+        var result = await _controller.DeleteChatMessage(20);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("BookingConfirmed", redirect.ActionName);
+        await _bookingRepository.Received(1).DeleteMessageAsync(20);
+    }
 }
