@@ -16,5 +16,10 @@ public interface IBookingRepository
     Task<IEnumerable<Booking>> GetJoinedBookingsByUserIdAsync(string userId);
     Task<bool> RemoveParticipantAsync(int bookingId, string userId);
     Task<bool> AddParticipantAsync(int bookingId, string userId);
+    Task<IEnumerable<BookingChat>> GetMessagesByBookingIdAsync(int bookingId);
+    Task<BookingChat?> GetMessageByIdAsync(int messageId);
+    Task<bool> AddMessageAsync(BookingChat message);
+    Task<bool> UpdateMessageAsync(BookingChat message);
+    Task<bool> DeleteMessageAsync(int messageId);
 
 }

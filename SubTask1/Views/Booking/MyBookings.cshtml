@@ -79,7 +79,7 @@
                                 <div class="mt-auto pt-2 d-flex justify-content-end gap-2 border-top">
                                     <a asp-controller="Booking" asp-action="BookingConfirmed" asp-route-id="@booking.Id"
                                        class="btn btn-outline-secondary btn-sm">
-                                        View Details
+                                        View Details & Chat
                                     </a>
                                     @if (booking.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                     {

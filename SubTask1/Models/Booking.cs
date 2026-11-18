@@ -20,4 +20,5 @@ public class Booking
     public bool JoinFlag { get; set; } = false;
 
     public ICollection<BookingParticipant> Participants { get; set; } = new List<BookingParticipant>();
+    public ICollection<BookingChat> ChatMessages { get; set; } = new List<BookingChat>();
 }

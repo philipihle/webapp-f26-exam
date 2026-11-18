@@ -221,4 +221,83 @@ public class BookingRepository : IBookingRepository
             return Enumerable.Empty<Booking>();
         }
     }
+    public async Task<IEnumerable<BookingChat>> GetMessagesByBookingIdAsync(int bookingId)
+    {
+        try
+        {
+            return await _context.BookingChats
+                .Where(m => m.BookingId == bookingId && m.DeletedAt == null)
+                .OrderBy(m => m.SentAt)
+                .Include(m => m.User)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to get messages for booking {BookingId}", bookingId);
+            return Enumerable.Empty<BookingChat>();
+        }
+    }
+    public async Task<BookingChat?> GetMessageByIdAsync(int messageId)
+    {
+        try
+        {
+            return await _context.BookingChats
+                .Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.Id == messageId && m.DeletedAt == null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to get message {MessageId}", messageId);
+            return null;
+        }
+    }
+    public async Task<bool> AddMessageAsync(BookingChat message)
+    {
+        try
+        {
+            await _context.BookingChats.AddAsync(message);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to send message");
+            return false;
+        }
+    }
+    public async Task<bool> UpdateMessageAsync(BookingChat message)
+    {
+        try
+        {
+            _context.BookingChats.Update(message);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to update message {MessageId}", message.Id);
+            return false;
+        }
+    }
+    public async Task<bool> DeleteMessageAsync(int messageId)
+    {
+        try
+        {
+            var message = await _context.BookingChats.FindAsync(messageId);
+            if (message == null || message.DeletedAt != null)
+            {
+                _logger.LogWarning("[BookingRepository] Message {MessageId} not found or already deleted", messageId);
+                return false;
+            }
+            message.DeletedAt = DateTime.Now;
+            _context.BookingChats.Update(message);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to delete message {MessageId}", messageId);
+            return false;
+        }
+    }
 }
