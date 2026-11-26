@@ -42,8 +42,11 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false; // keep claim names as written in the token (otherwise "sub" is read as the user id)
     options.TokenValidationParameters = new TokenValidationParameters
     {
+        RoleClaimType = "role", // [Authorize(Roles = "Admin")] reads the "role" claim
+
         ValidateIssuer = true, // the token was issued by this API
         ValidateAudience = true, // the token is meant for this API
         ValidateLifetime = true, // the token has not expired
