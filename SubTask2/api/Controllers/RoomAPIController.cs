@@ -74,6 +74,7 @@ public class RoomAPIController : ControllerBase
         return StatusCode(500, "Internal server error");
     }
 
+    //HTTP GET endpoint to retrieve one room by its id. Returns 404 if the room does not exist.
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRoom(int id)
     {
