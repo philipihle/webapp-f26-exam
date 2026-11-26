@@ -1,10 +1,13 @@
 import { Nav, Navbar, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import AuthSection from '../auth/AuthSection';
+import { useAuth } from '../auth/AuthContext';
 
 // Top navigation bar, same markup and classes as _Layout.cshtml in SubTask1.
 // react-bootstrap's Navbar handles the mobile toggle (instead of Bootstrap's jQuery script).
 export default function NavMenu() {
+  const { user } = useAuth(); // "My Bookings" is only shown to logged-in users
+
   return (
     <header className="sticky-top bg-white border-bottom shadow-sm">
       <Navbar expand="lg" className="navbar-light py-2">
@@ -18,6 +21,11 @@ export default function NavMenu() {
               <Nav.Link as={Link} to="/rooms" className="px-3 py-2 text-dark d-inline-flex align-items-center gap-1">
                 <span>Find a room</span>
               </Nav.Link>
+              {user && (
+                <Nav.Link as={Link} to="/mybookings" className="px-3 py-2 text-dark d-inline-flex align-items-center gap-1">
+                  <span>My Bookings</span>
+                </Nav.Link>
+              )}
             </Nav>
             <AuthSection />
           </Navbar.Collapse>

@@ -4,11 +4,12 @@ import type { Room } from '../types/room';
 
 interface RoomGridProps {
   rooms: Room[];
-  onRoomDeleted?: (room: Room) => void; // only passed when the user is logged in
+  onRoomDeleted?: (room: Room) => void; // only passed when the user is an admin
+  canBook?: boolean; // true when the user is logged in
 }
 
 // Room cards, same markup and classes as Views/Rooms/Index.cshtml in SubTask1
-export default function RoomGrid({ rooms, onRoomDeleted }: RoomGridProps) {
+export default function RoomGrid({ rooms, onRoomDeleted, canBook = false }: RoomGridProps) {
   return (
     <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {rooms.map(room => (
@@ -40,6 +41,12 @@ export default function RoomGrid({ rooms, onRoomDeleted }: RoomGridProps) {
                 </div>
               </div>
             </div>
+
+            {canBook && room.isActive && (
+              <div className="p-4 pt-0">
+                <Link to={`/book/${room.id}`} className="btn btn-primary shadow-sm btn-sm w-100">Book now</Link>
+              </div>
+            )}
 
             {onRoomDeleted && (
               <div className="p-4 pt-0 d-flex gap-2">

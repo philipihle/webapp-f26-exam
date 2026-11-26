@@ -8,6 +8,8 @@ import Footer from './shared/Footer';
 import { AuthProvider } from './auth/AuthContext';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
+import BookingCreatePage from './bookings/BookingCreatePage';
+import MyBookingsPage from './bookings/MyBookingsPage';
 
 const queryClient = new QueryClient(); // one shared instance for the whole app
 
@@ -27,6 +29,8 @@ export default function App() {
                   <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/book/:roomId" element={<BookingCreatePage />} />
+                  <Route path="/mybookings" element={<MyBookingsPage />} />
                   <Route path="*" element={<Navigate to="/rooms" replace />} />
                 </Routes>
               </main>
