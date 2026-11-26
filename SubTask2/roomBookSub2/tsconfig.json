@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // output modern JavaScript, Vite handles browser support
+    "module": "ESNext", // use import/export modules
+    "moduleResolution": "bundler", // resolve imports the way Vite does
+    "jsx": "react-jsx", // JSX without having to import React in every file
+    "strict": true, // strict type checking (e.g. null checks)
+    "esModuleInterop": true, // allow default imports from older CommonJS packages
+    "skipLibCheck": true, // do not type-check libraries in node_modules
+    "forceConsistentCasingInFileNames": true, // App.tsx and app.tsx count as different files
+    "noEmit": true // only check types, Vite produces the .js files
+  },
+  "include": ["src"], // check the code in src/
+  "exclude": ["node_modules", "dist"]
+}
