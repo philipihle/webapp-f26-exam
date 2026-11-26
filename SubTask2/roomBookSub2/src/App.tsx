@@ -4,7 +4,6 @@ import Container from 'react-bootstrap/Container';
 import RoomListPage from './rooms/RoomListPage';
 import RoomCreatePage from './rooms/RoomCreatePage';
 import RoomUpdatePage from './rooms/RoomUpdatePage';
-import './App.css';
 
 const queryClient = new QueryClient(); // one shared instance for the whole app
 
