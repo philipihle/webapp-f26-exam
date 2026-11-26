@@ -70,4 +70,16 @@ public class RoomAPIController : ControllerBase // ControllerBase is enough for 
         _logger.LogWarning("[RoomAPIController] Room creation failed {@room}", newRoom);
         return StatusCode(500, "Internal server error");
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetRoom(int id)
+    {
+        var room = await _roomRepository.GetRoomByIdAsync(id);
+        if (room == null)
+        {
+            _logger.LogError("[RoomAPIController] Room not found for the RoomId {RoomId:0000}", id);
+            return NotFound("Room not found for the RoomId");
+        }
+        return Ok(room);
+    }
 }
