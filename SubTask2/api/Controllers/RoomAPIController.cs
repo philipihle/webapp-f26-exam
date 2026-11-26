@@ -95,13 +95,11 @@ public class RoomAPIController : ControllerBase
         {
             return BadRequest("Room data cannot be null");
         }
-        // Find the room in the database
         var existingRoom = await _roomRepository.GetRoomByIdAsync(id);
         if (existingRoom == null)
         {
             return NotFound("Room not found");
         }
-        // Update the room properties
         existingRoom.Name = roomDto.Name;
         existingRoom.RoomCode = roomDto.RoomCode;
         existingRoom.Building = roomDto.Building;
@@ -111,7 +109,6 @@ public class RoomAPIController : ControllerBase
         existingRoom.Description = roomDto.Description;
         existingRoom.IsActive = roomDto.IsActive;
         existingRoom.Amenities = roomDto.Amenities;
-        // Save the changes
         bool updateSuccessful = await _roomRepository.UpdateRoomAsync(existingRoom);
         if (updateSuccessful)
         {
