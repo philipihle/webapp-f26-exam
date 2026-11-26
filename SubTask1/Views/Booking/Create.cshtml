@@ -1,4 +1,4 @@
-@model webapp_f26_exam.Models.Booking
+@model webapp_f26_exam.ViewModels.BookingCreateViewModel
 @{
     ViewData["Title"] = $"Book {Model.Room?.Name ?? "Study Room"}";
 }
@@ -137,26 +137,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var b in ((IEnumerable<Booking>)ViewBag.UpcomingBookings ?? Enumerable.Empty<Booking>()))
+                        @foreach (var upcomingBooking in Model.UpcomingBookings)
                         {
-                            var participantCount = 1 + (b.Participants?.Count ?? 0);
-                            var isFull = b.Room != null && participantCount >= b.Room.Capacity;
+                            var participantCount = 1 + upcomingBooking.Participants.Count;
+                            var isFull = Model.Room != null && participantCount >= Model.Room.Capacity;
 
                             <tr>
-                                <td class="fw-semibold text-dark">@(b.User?.UserName ?? "Student")</td>
-                                <td>@b.Start.ToString("yyyy-MM-dd")</td>
-                                <td>@b.Start.ToString("HH:mm")</td>
-                                <td>@b.End.ToString("HH:mm")</td>
+                                <td class="fw-semibold text-dark">@(upcomingBooking.User?.UserName ?? "Student")</td>
+                                <td>@upcomingBooking.Start.ToString("yyyy-MM-dd")</td>
+                                <td>@upcomingBooking.Start.ToString("HH:mm")</td>
+                                <td>@upcomingBooking.End.ToString("HH:mm")</td>
                                 <td class="text-end">
-                                    @if (!b.JoinFlag)
+                                    @if (!upcomingBooking.JoinFlag)
                                     {
                                         <span class="text-muted small">Private</span>
                                     }
-                                    else if (b.UserId == Model.UserId)
+                                    else if (upcomingBooking.UserId == Model.CurrentUserId)
                                     {
                                         <span class="badge bg-secondary">Host</span>
                                     }
-                                    else if (b.Participants != null && b.Participants.Any(p => p.UserId == Model.UserId))
+                                    else if (upcomingBooking.Participants.Any(p => p.UserId == Model.CurrentUserId))
                                     {
                                         <span class="badge bg-success">Joined</span>
                                     }
@@ -166,7 +166,7 @@
                                     }
                                     else
                                     {
-                                        <form asp-controller="Booking" asp-action="Join" asp-route-id="@b.Id" method="post" class="d-inline">
+                                        <form asp-controller="Booking" asp-action="Join" asp-route-id="@upcomingBooking.Id" method="post" class="d-inline">
                                             <button type="submit" class="btn btn-sm btn-outline-primary">Join</button>
                                         </form>
                                     }
@@ -179,3 +179,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

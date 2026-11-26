@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using webapp_f26_exam.DAL;
 using webapp_f26_exam.ViewModels;
+using webapp_f26_exam.Models;
 
 namespace webapp_f26_exam.Controllers;
 
@@ -14,17 +15,20 @@ public class AdminController : Controller
     private readonly UserManager<IdentityUser> _userManager;
     private readonly MyDbContext _context;
     private readonly IBookingRepository _bookingRepository;
+    private readonly IRoomRepository _roomRepository;
     private readonly ILogger<AdminController> _logger;
 
     public AdminController(
         UserManager<IdentityUser> userManager,
         MyDbContext context,
         IBookingRepository bookingRepository,
+        IRoomRepository roomRepository,
         ILogger<AdminController> logger)
     {
         _userManager = userManager;
         _context = context;
         _bookingRepository = bookingRepository;
+        _roomRepository = roomRepository;
         _logger = logger;
     }
 
@@ -121,7 +125,6 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SetUserRole(string userId, string newRole)
     {
         // Only allow switching between "Student" and "Admin"
@@ -181,7 +184,7 @@ public class AdminController : Controller
 
         return RedirectToAction("Roles");
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> EditUser(string userId)
     {
@@ -203,7 +206,6 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditUser(UserEditViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -265,5 +267,195 @@ public class AdminController : Controller
         }
 
         return RedirectToAction("Users");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Rooms(string? building, string? roomType, bool? isActive)
+    {
+        var allRooms = (await _roomRepository.GetAllRoomsAsync()).ToList();
+        var filteredRooms = allRooms.AsEnumerable();
+        if (!string.IsNullOrEmpty(building) && building != "All")
+        {
+            filteredRooms = filteredRooms.Where(r => r.Building == building);
+        }
+        if (!string.IsNullOrEmpty(roomType) && roomType != "All")
+        {
+            filteredRooms = filteredRooms.Where(r => r.RoomType == roomType);
+        }
+        if (isActive.HasValue)
+        {
+            filteredRooms = filteredRooms.Where(r => r.IsActive == isActive.Value);
+        }
+
+        var model = new RoomsListViewModel
+        {
+            SelectedBuilding = building ?? "All",
+            SelectedRoomType = roomType ?? "All",
+            SelectedIsActive = isActive,
+            AvailableBuildings = allRooms.Select(r => r.Building).Distinct().OrderBy(b => b).ToList(),
+            AvailableRoomTypes = allRooms.Select(r => r.RoomType).Where(t => !string.IsNullOrEmpty(t)).Select(t => t!).Distinct().OrderBy(t => t).ToList(),
+            Rooms = filteredRooms.OrderBy(r => r.Building).ThenBy(r => r.RoomCode).Select(r => new RoomItemViewModel
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Building = r.Building,
+                RoomCode = r.RoomCode,
+                Floor = r.Floor,
+                Capacity = r.Capacity,
+                RoomType = r.RoomType ?? string.Empty,
+                IsActive = r.IsActive
+            }).ToList()
+        };
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CreateRoom()
+    {
+        var model = new RoomFormViewModel
+        {
+            AvailableAmenities = await GetAvailableAmenitiesAsync()
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateRoom(RoomFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            model.AvailableAmenities = await GetAvailableAmenitiesAsync();
+            return View(model);
+        }
+
+        var existingRooms = await _roomRepository.GetAllRoomsAsync();
+        var room = new Room
+        {
+            RoomCode = GenerateRoomCode(model.Building, existingRooms)
+        };
+        ApplyRoomForm(room, model);
+
+        var success = await _roomRepository.CreateRoomAsync(room);
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
+            ? $"Room {room.RoomCode} created."
+            : "Failed to create room.";
+
+        return RedirectToAction("Rooms");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditRoom(int id)
+    {
+        var room = await _roomRepository.GetRoomByIdAsync(id);
+        if (room == null)
+        {
+            TempData["ErrorMessage"] = "Room was not found.";
+            return RedirectToAction("Rooms");
+        }
+
+        var model = new RoomFormViewModel
+        {
+            Id = room.Id,
+            Name = room.Name,
+            RoomCode = room.RoomCode,
+            Building = room.Building,
+            Floor = room.Floor,
+            Capacity = room.Capacity,
+            RoomType = room.RoomType ?? string.Empty,
+            Description = room.Description,
+            IsActive = room.IsActive,
+            Amenities = room.Amenities,
+            AvailableAmenities = await GetAvailableAmenitiesAsync()
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditRoom(RoomFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            model.AvailableAmenities = await GetAvailableAmenitiesAsync();
+            return View(model);
+        }
+
+        var room = await _roomRepository.GetRoomByIdAsync(model.Id);
+        if (room == null)
+        {
+            TempData["ErrorMessage"] = "Room was not found.";
+            return RedirectToAction("Rooms");
+        }
+
+        ApplyRoomForm(room, model);
+
+        var success = await _roomRepository.UpdateRoomAsync(room);
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
+            ? $"Room {room.RoomCode} updated."
+            : "Failed to update room.";
+
+        return RedirectToAction("Rooms");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteRoom(int id)
+    {
+        var room = await _roomRepository.GetRoomByIdAsync(id);
+        if (room == null)
+        {
+            TempData["ErrorMessage"] = "Room was not found.";
+            return RedirectToAction("Rooms");
+        }
+
+        if (await _context.Bookings.AnyAsync(b => b.RoomId == id))
+        {
+            TempData["ErrorMessage"] = $"Cannot delete room {room.RoomCode} because it has existing bookings. Deactivate it instead.";
+            return RedirectToAction("Rooms");
+        }
+
+        var success = await _roomRepository.DeleteRoomAsync(id);
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
+            ? $"Room {room.RoomCode} deleted."
+            : $"Failed to delete room {room.RoomCode}.";
+
+        return RedirectToAction("Rooms");
+    }
+
+    private async Task<List<string>> GetAvailableAmenitiesAsync()
+    {
+        var defaults = new[] { "Whiteboard", "Screen", "Projector", "Camera", "Quiet zone", "Smart-TV" };
+        var fromDb = (await _roomRepository.GetAllRoomsAsync()).SelectMany(r => r.Amenities);
+        return defaults.Concat(fromDb).Distinct().OrderBy(a => a).ToList();
+    }
+
+    // Generates a unique room code using the first letter of the building name, its street/address number, e.g. "Pilestredet 32" -> "P32", and a random 3-digit suffix.
+    private static string GenerateRoomCode(string building, IEnumerable<Room> existingRooms)
+    {
+        var trimmed = building.Trim();
+        var letter = char.ToUpperInvariant(trimmed[0]);
+        var digits = new string(trimmed.Where(char.IsDigit).ToArray());
+        var prefix = $"{letter}{digits}";
+        var existingCodes = existingRooms.Select(r => r.RoomCode).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        string code;
+        do
+        {
+            code = $"{prefix}-{Random.Shared.Next(100, 1000)}";
+        }
+        while (existingCodes.Contains(code));
+
+        return code;
+    }
+
+    private static void ApplyRoomForm(Room room, RoomFormViewModel model)
+    {
+        room.Name = model.Name.Trim();
+        room.Building = model.Building.Trim();
+        room.Floor = model.Floor;
+        room.Capacity = model.Capacity;
+        room.RoomType = model.RoomType;
+        room.Description = model.Description?.Trim() ?? string.Empty;
+        room.IsActive = model.IsActive;
+        room.Amenities = model.Amenities ?? new List<string>();
     }
 }

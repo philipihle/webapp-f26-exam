@@ -1,12 +1,6 @@
-@model webapp_f26_exam.Models.Booking
+@model webapp_f26_exam.ViewModels.BookingDetailsViewModel
 @{
     ViewData["Title"] = "Booking Details";
-    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-    var isOwner = Model.UserId == currentUserId;
-    var participantCount = (Model.Participants?.Count ?? 0) + 1;
-    var maxCapacity = Model.Room?.Capacity ?? 0;
-    var isParticipant = isOwner || (Model.Participants?.Any(p => p.UserId == currentUserId) ?? false);
-    var chatMessages = ViewBag.ChatMessages as IEnumerable<webapp_f26_exam.Models.BookingChat> ?? Enumerable.Empty<webapp_f26_exam.Models.BookingChat>();
 }
 
 <div class="row justify-content-center py-4">
@@ -50,8 +44,8 @@
 
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Booking #@Model.Id</span>
-                @if (Model.JoinFlag)
+                <span class="text-muted small">Booking #@Model.Booking.Id</span>
+                @if (Model.Booking.JoinFlag)
                 {
                     <span class="badge bg-success">Open for others to join</span>
                 }
@@ -64,33 +58,33 @@
                 <div class="row g-3">
                     <div class="col-6">
                         <small class="text-muted d-block">Room</small>
-                        <span class="fw-semibold">@Model.Room?.Name</span>
-                        <small class="text-muted d-block">@Model.Room?.RoomCode</small>
+                        <span class="fw-semibold">@Model.Booking.Room?.Name</span>
+                        <small class="text-muted d-block">@Model.Booking.Room?.RoomCode</small>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Location</small>
-                        <span class="fw-semibold">@Model.Room?.Building</span>
-                        <small class="text-muted d-block">Floor @Model.Room?.Floor</small>
+                        <span class="fw-semibold">@Model.Booking.Room?.Building</span>
+                        <small class="text-muted d-block">Floor @Model.Booking.Room?.Floor</small>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Date</small>
-                        <span class="fw-semibold">@Model.Start.ToString("dd.MM.yyyy")</span>
+                        <span class="fw-semibold">@Model.Booking.Start.ToString("dd.MM.yyyy")</span>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Time</small>
-                        <span class="fw-semibold">@Model.Start.ToString("HH:mm") – @Model.End.ToString("HH:mm")</span>
+                        <span class="fw-semibold">@Model.Booking.Start.ToString("HH:mm") – @Model.Booking.End.ToString("HH:mm")</span>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Purpose</small>
-                        <span class="fw-semibold">@Model.Purpose</span>
+                        <span class="fw-semibold">@Model.Booking.Purpose</span>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Capacity</small>
-                        <span class="fw-semibold">@participantCount / @maxCapacity spots taken</span>
+                        <span class="fw-semibold">@(Model.Booking.Participants.Count + 1) / @(Model.Booking.Room?.Capacity ?? 0) spots taken</span>
                     </div>
                 </div>
 
-                @if (isOwner)
+                @if (Model.IsOwner)
                 {
                     <hr class="my-4" />
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -98,8 +92,8 @@
                             <h6 class="fw-bold mb-0">Session Visibility</h6>
                             <small class="text-muted">Allow other students to join this study session.</small>
                         </div>
-                        <form asp-controller="Booking" asp-action="ToggleJoinFlag" asp-route-id="@Model.Id" method="post">
-                            @if (Model.JoinFlag)
+                        <form asp-controller="Booking" asp-action="ToggleJoinFlag" asp-route-id="@Model.Booking.Id" method="post">
+                            @if (Model.Booking.JoinFlag)
                             {
                                 <button type="submit" class="btn btn-sm btn-outline-secondary">Change to Private</button>
                             }
@@ -111,22 +105,22 @@
                     </div>
                 }
 
-                @if (Model.Participants != null && Model.Participants.Any())
+                @if (Model.Booking.Participants.Any())
                 {
                     <hr class="my-4" />
-                    <h6 class="fw-bold mb-3">Participants (@Model.Participants.Count)</h6>
+                    <h6 class="fw-bold mb-3">Participants (@Model.Booking.Participants.Count)</h6>
                     <ul class="list-group list-group-flush">
-                        @foreach (var participant in Model.Participants)
+                        @foreach (var participant in Model.Booking.Participants)
                         {
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <div>
                                     <span class="fw-medium">@(participant.User?.UserName ?? participant.UserId)</span>
                                     <small class="text-muted d-block">Joined @participant.JoinedAtDateTime.ToString("dd.MM HH:mm")</small>
                                 </div>
-                                @if (isOwner)
+                                @if (Model.IsOwner)
                                 {
                                     <form asp-controller="Booking" asp-action="RemoveParticipant" method="post" class="d-inline">
-                                        <input type="hidden" name="bookingId" value="@Model.Id" />
+                                        <input type="hidden" name="bookingId" value="@Model.Booking.Id" />
                                         <input type="hidden" name="participantUserId" value="@participant.UserId" />
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
                                     </form>
@@ -145,14 +139,14 @@
                 </a>
             </div>
         </div>
-        @if (isParticipant)
-        {
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0">Session Chat</h5>
-                </div>
-                <div class="card-body p-4">
-                    @if (!chatMessages.Any())
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0">Session Chat</h5>
+            </div>
+            <div class="card-body p-4">
+                @if (Model.IsParticipant)
+                {
+                    @if (!Model.ChatMessages.Any())
                     {
                         <div class="text-center text-muted py-3">
                             <p class="mb-0">No messages yet. Start the conversation!</p>
@@ -161,10 +155,10 @@
                     else
                     {
                         <div class="list-group list-group-flush mb-3">
-                            @foreach (var message in chatMessages)
+                            @foreach (var message in Model.ChatMessages)
                             {
-                                var isMsgAuthor = message.UserId == currentUserId;
-                                var canDelete = isMsgAuthor || isOwner || User.IsInRole("Admin");
+                                var isMsgAuthor = message.UserId == Model.CurrentUserId;
+                                var canDelete = isMsgAuthor || Model.IsOwner || User.IsInRole("Admin");
 
                                 <div class="list-group-item px-0 py-3 border-bottom">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
@@ -179,7 +173,7 @@
                                         <div>
                                             @if (isMsgAuthor)
                                             {
-                                                <button type="button" class="btn btn-link btn-sm text-secondary text-decoration-none p-0 me-3" 
+                                                <button type="button" class="btn btn-link btn-sm text-secondary text-decoration-none p-0 me-3"
                                                         data-bs-toggle="collapse" data-bs-target="#edit-msg-@message.Id">
                                                     Edit
                                                 </button>
@@ -213,25 +207,18 @@
                     }
 
                     <form asp-controller="Booking" asp-action="SendChatMessage" method="post" class="mt-3">
-                        <input type="hidden" name="bookingId" value="@Model.Id" />
+                        <input type="hidden" name="bookingId" value="@Model.Booking.Id" />
                         <div class="input-group">
                             <input type="text" name="message" class="form-control" placeholder="Type a message..." maxlength="500" required />
                             <button type="submit" class="btn btn-primary">Send</button>
                         </div>
                     </form>
-                </div>
+                }
+                else
+                {
+                    <p class="mb-0 text-center text-muted">You must be a participant in this study session to view and send messages.</p>
+                }
             </div>
-        }
-        else
-        {
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0">Session Chat</h5>
-                </div>
-                <div class="card-body p-4 text-center text-muted">
-                    <p class="mb-0">You must be a participant in this study session to view and send messages.</p>
-                </div>
-            </div>
-        }
+        </div>
     </div>
 </div>

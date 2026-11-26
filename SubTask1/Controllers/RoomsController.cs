@@ -89,8 +89,11 @@ public class RoomsController : Controller
         }
         else
         {
-            filterStart = start ?? DateTime.Now;
-            filterEnd = end ?? DateTime.Now.AddHours(1);
+            var now = DateTime.Now;
+            var minutesToAdd = (15 - (now.Minute % 15)) % 15;
+            var roundedNow = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(minutesToAdd);
+            filterStart = start ?? roundedNow;
+            filterEnd = end ?? filterStart.AddHours(1);
         }
 
         var bookings = await _bookingRepository.GetAllBookingsAsync();
@@ -111,7 +114,7 @@ public class RoomsController : Controller
                 RoomType = r.RoomType ?? string.Empty,
                 Description = r.Description,
                 IsAvailableNow = isAvailable,
-                Amenities = r.Amenities ?? new List<string>()
+                Amenities = r.Amenities
             };
         }).ToList();
 

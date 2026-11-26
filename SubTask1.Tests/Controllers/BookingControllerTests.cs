@@ -8,6 +8,7 @@ using System.Security.Claims;
 using webapp_f26_exam.Controllers;
 using webapp_f26_exam.DAL;
 using webapp_f26_exam.Models;
+using webapp_f26_exam.ViewModels;
 using Xunit;
 
 namespace SubTask1.Tests.Controllers;
@@ -39,12 +40,11 @@ public class BookingControllerTests
         _controller.TempData = new TempDataDictionary(httpContext, Substitute.For<ITempDataProvider>());
     }
 
-    private static Booking CreateFutureBooking()
+    private static BookingCreateViewModel CreateFutureBooking()
     {
         var tomorrow = DateTime.Today.AddDays(1).AddHours(10);
         return new()
         {
-            Id = 10,
             RoomId = 1,
             Start = tomorrow,
             End = tomorrow.AddHours(2),
@@ -60,7 +60,7 @@ public class BookingControllerTests
         var booking = CreateFutureBooking();
         _roomRepository.GetRoomByIdAsync(1).Returns(new Room { Id = 1, RoomCode = "PH-101" });
         _bookingRepository.HasConflictAsync(1, booking.Start, booking.End).Returns(false);
-        _bookingRepository.CreateBookingAsync(booking).Returns(true);
+        _bookingRepository.CreateBookingAsync(Arg.Any<Booking>()).Returns(true);
 
         // Act
         var result = await _controller.Create(booking);
@@ -68,8 +68,8 @@ public class BookingControllerTests
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("BookingConfirmed", redirect.ActionName);
-        Assert.Equal(UserId, booking.UserId);
-        await _bookingRepository.Received(1).CreateBookingAsync(booking);
+        await _bookingRepository.Received(1).CreateBookingAsync(Arg.Is<Booking>(b =>
+            b.RoomId == 1 && b.UserId == UserId && b.Purpose == "Exam prep"));
     }
 
     // Negative: booking a room that is already taken at that time should be rejected
@@ -95,9 +95,8 @@ public class BookingControllerTests
     public async Task Create_WhenStartTimeIsInThePast_ReturnsViewWithError()
     {
         // Arrange
-        var pastBooking = new Booking
+        var pastBooking = new BookingCreateViewModel
         {
-            Id = 11,
             RoomId = 1,
             Start = DateTime.Now.AddHours(-2),
             End = DateTime.Now.AddHours(-1),

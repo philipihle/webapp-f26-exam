@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using webapp_f26_exam.DAL;
 using webapp_f26_exam.Models;
 
 namespace webapp_f26_exam.Controllers;
