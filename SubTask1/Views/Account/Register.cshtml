@@ -30,6 +30,7 @@
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label small fw-semibold text-muted"></label>
                     <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                    <div class="form-text text-muted small">At least 6 characters, including 1 uppercase letter and 1 number.</div>
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
                 <div class="mb-4">

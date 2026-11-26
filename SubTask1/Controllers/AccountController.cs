@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using webapp_f26_exam.ViewModels;
@@ -91,5 +92,60 @@ public class AccountController : Controller
         await _signInManager.SignOutAsync();
         _logger.LogInformation("User {UserName} logged out.", User.Identity?.Name);
         return RedirectToAction("Index", "Home");
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Account()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge();
+
+        return View(new AccountViewModel { Email = user.Email ?? string.Empty });
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Account(AccountViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge();
+
+        if (!string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Email is already in use.");
+                return View(model);
+            }
+
+            var emailResult = await _userManager.SetEmailAsync(user, model.Email);
+            if (!emailResult.Succeeded)
+            {
+                foreach (var error in emailResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View(model);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.Password))
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+            if (!passwordResult.Succeeded)
+            {
+                foreach (var error in passwordResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View(model);
+            }
+        }
+
+        await _signInManager.RefreshSignInAsync(user);
+        _logger.LogInformation("User {UserName} updated their account settings.", user.UserName);
+        TempData["SuccessMessage"] = "Account updated successfully.";
+        return RedirectToAction("Account");
     }
 }

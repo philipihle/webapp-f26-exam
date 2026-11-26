@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using webapp_f26_exam.DAL;
 using webapp_f26_exam.ViewModels;
 using webapp_f26_exam.Models;
@@ -121,7 +120,11 @@ public class AdminController : Controller
             CurrentRole = adminUserIds.Contains(user.Id) ? "Admin" : "Student"
         }).ToList();
 
-        return View(new RolesViewModel { Users = userRoleList });
+        return View(new RolesViewModel
+        {
+            CurrentUserId = _userManager.GetUserId(User) ?? string.Empty,
+            Users = userRoleList
+        });
     }
 
     [HttpPost]
@@ -144,7 +147,7 @@ public class AdminController : Controller
         }
 
         // Prevent admin from removing their own Admin privileges
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUserId = _userManager.GetUserId(User);
         if (userId == currentUserId && newRole != "Admin")
         {
             _logger.LogWarning("Admin {AdminEmail} tried to remove their own admin role.", User.Identity?.Name);

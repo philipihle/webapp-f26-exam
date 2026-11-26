@@ -63,10 +63,10 @@
                             @{
                                 var roleName = User.IsInRole("Admin") ? "Admin" : "Student";
                             }
-                            <div class="d-none d-sm-flex flex-column text-end px-2">
-                                <span class="fw-semibold small text-dark">@User.Identity.Name</span>
+                            <a asp-area="" asp-controller="Account" asp-action="Account" class="d-none d-sm-flex flex-column text-end px-2 text-decoration-none" title="Account settings">
+                                <span class="fw-semibold small text-dark text-decoration-underline">@User.Identity.Name</span>
                                 <span class="text-muted small">@roleName</span>
-                            </div>
+                            </a>
 
                             <a class="btn btn-outline-secondary btn-sm" asp-area="" asp-controller="Account" asp-action="Logout">
                                 Logout
@@ -90,7 +90,7 @@
                 <strong>BookingPortal</strong>
             </div>
             <div>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy &amp; Terms</a>
+                Study Room Booking Tool
             </div>
         </div>
     </footer>

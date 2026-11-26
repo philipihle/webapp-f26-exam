@@ -1,0 +1,54 @@
+@model webapp_f26_exam.ViewModels.AccountViewModel
+@{
+    ViewData["Title"] = "Account settings";
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold mb-1">Account Settings</h3>
+                <p class="text-muted small">Update your email or change your password</p>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Email" class="form-label small fw-semibold text-muted"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <p class="text-muted small mb-3">Leave password fields blank if you only want to update your email.</p>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label small fw-semibold text-muted">New Password</label>
+                    <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                    <div class="form-text text-muted small">At least 6 characters, including 1 uppercase letter and 1 number.</div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label small fw-semibold text-muted">Confirm New Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

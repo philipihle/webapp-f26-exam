@@ -6,13 +6,6 @@ namespace webapp_f26_exam.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
-
     [HttpGet]
     public IActionResult Index()
     {
@@ -20,12 +13,6 @@ public class HomeController : Controller
         {
             return RedirectToAction("Index", "Rooms");
         }
-        return View();
-    }
-
-    [HttpGet]
-    public IActionResult Privacy()
-    {
         return View();
     }
 

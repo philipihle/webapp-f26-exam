@@ -1,7 +1,6 @@
 @model webapp_f26_exam.ViewModels.RolesViewModel
 @{
     ViewData["Title"] = "Manage Roles";
-    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
 <div class="py-4">
@@ -49,7 +48,7 @@
                     {
                         @foreach (var user in Model.Users)
                         {
-                            var isCurrentUser = user.UserId == currentUserId;
+                            var isCurrentUser = user.UserId == Model.CurrentUserId;
                             <tr>
                                 <td>
                                     <span class="fw-semibold text-dark">@user.Name</span>
