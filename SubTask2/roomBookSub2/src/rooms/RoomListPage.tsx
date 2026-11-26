@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Table, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import RoomGrid from './RoomGrid';
+import RoomTable from './RoomTable';
 import type { Room } from '../types/room';
 import * as RoomService from './RoomService';
 
 export default function RoomListPage() {
+  const [showGrid, setShowGrid] = useState<boolean>(true); // cards by default, as in SubTask1
+
   // Fetch rooms through the service layer; React Query tracks loading and error
   const { data: rooms = [], isLoading, error } = useQuery<Room[], Error>({
     queryKey: ['rooms'],
@@ -13,7 +18,7 @@ export default function RoomListPage() {
 
   const queryClient = useQueryClient();
 
-  // Delete a room, then refetch the list so the table updates
+  // Delete a room, then refetch the list so the page updates
   const deleteMutation = useMutation({
     mutationFn: RoomService.deleteRoom,
     onSuccess: () => {
@@ -28,44 +33,35 @@ export default function RoomListPage() {
     }
   };
 
+  const toggleGridOrTable = () => setShowGrid(prev => !prev);
+
   return (
-    <div className="text-start">
-      <h1>Rooms</h1>
-      {isLoading && <p>Loading...</p>}
+    <div className="py-4 text-start">
+      <div className="row align-items-center justify-content-between mb-4">
+        <div className="col-md-8">
+          <h1 className="h2 fw-bold text-dark mb-1">Booking Portal</h1>
+          <p className="text-secondary mb-0">Browse and book study rooms, auditoriums and meeting rooms</p>
+        </div>
+        <div className="col-md-4 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+          <Button variant="outline-primary" size="sm" onClick={toggleGridOrTable}>
+            {showGrid ? 'Display Table' : 'Display Cards'}
+          </Button>
+          <Link to="/roomcreate" className="btn btn-primary btn-sm">Add New Room</Link>
+        </div>
+      </div>
+
+      {isLoading && <p className="text-muted">Loading...</p>}
       {error && <p className="text-danger">Failed to fetch rooms.</p>}
       {deleteMutation.isError && <p className="text-danger">Failed to delete room.</p>}
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Code</th>
-            <th>Building</th>
-            <th>Floor</th>
-            <th>Capacity</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map(room => (
-            <tr key={room.id}>
-              <td>{room.name}</td>
-              <td>{room.roomCode}</td>
-              <td>{room.building}</td>
-              <td>{room.floor}</td>
-              <td>{room.capacity}</td>
-              <td className="text-center">
-                <Link to={`/roomupdate/${room.id}`}>Update</Link>
-                <Button
-                  onClick={() => handleRoomDeleted(room)}
-                  variant="link"
-                  className="text-danger"
-                >Delete</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <Link to="/roomcreate" className="btn btn-secondary mt-3">Add New Room</Link>
+
+      {!isLoading && !error && rooms.length === 0 ? (
+        <div className="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+          <h4 className="fw-bold mb-1">No rooms yet</h4>
+          <p className="text-muted small mb-0">Add a room to get started.</p>
+        </div>
+      ) : showGrid
+        ? <RoomGrid rooms={rooms} onRoomDeleted={handleRoomDeleted} />
+        : <RoomTable rooms={rooms} onRoomDeleted={handleRoomDeleted} />}
     </div>
   );
 }

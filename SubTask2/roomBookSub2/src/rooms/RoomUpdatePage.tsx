@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import RoomForm from './RoomForm';
 import * as RoomService from './RoomService';
@@ -28,15 +28,21 @@ export default function RoomUpdatePage() {
   if (!roomQuery.data) return <p>No room found</p>;
 
   return (
-    <div className="text-start">
-      <h2>Update Room</h2>
-      <RoomForm
-        onRoomChanged={(room) => mutation.mutateAsync(room)}
-        roomId={roomQuery.data.id}
-        initialValues={roomQuery.data}
-        error={mutation.error instanceof Error ? mutation.error.message : null}
-        submitting={mutation.isPending}
-      />
+    <div className="py-4 text-start">
+      <div className="mb-4">
+        <Link to="/rooms" className="btn btn-outline-secondary btn-sm">Back to all rooms</Link>
+      </div>
+      <div className="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+        <h4 className="fw-bold mb-1">Update Room</h4>
+        <p className="text-muted small mb-4">Change the details for {roomQuery.data.name}.</p>
+        <RoomForm
+          onRoomChanged={(room) => mutation.mutateAsync(room)}
+          roomId={roomQuery.data.id}
+          initialValues={roomQuery.data}
+          error={mutation.error instanceof Error ? mutation.error.message : null}
+          submitting={mutation.isPending}
+        />
+      </div>
     </div>
   );
 }
