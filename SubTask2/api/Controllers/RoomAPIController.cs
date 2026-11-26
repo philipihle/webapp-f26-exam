@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using api.DAL;
 using api.DTOs;
@@ -46,6 +47,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP POST endpoint to create a new room. The room data is sent in the request body as JSON and mapped to a RoomDto object. The method creates a new Room entity
+    [Authorize]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] RoomDto roomDto)
     {
@@ -88,6 +90,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP PUT endpoint to update an existing room. The new room data is sent in the request body as JSON and mapped to a RoomDto object. Returns 404 if the room does not exist.
+    [Authorize]
     [HttpPut("update/{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] RoomDto roomDto)
     {
@@ -121,6 +124,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP DELETE endpoint to delete a room by its id. Returns 204 No Content if deleted, 400 if it fails.
+    [Authorize]
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
