@@ -19,6 +19,5 @@ public class Booking
     public DateTime End { get; set; }
     public string Purpose { get; set; } = string.Empty;
 
-    // True if other students can join the booking
     public bool JoinFlag { get; set; } = false;
 }
