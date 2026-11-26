@@ -56,8 +56,9 @@ export default function RoomForm({
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group controlId="formRoomName" className="mb-3">
-        <Form.Label>Name</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Name</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="text"
           placeholder="Enter room name"
           value={name}
@@ -69,8 +70,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomCode" className="mb-3">
-        <Form.Label>Room code</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Room code</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="text"
           placeholder="E.g. P46-201"
           value={roomCode}
@@ -81,8 +83,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomBuilding" className="mb-3">
-        <Form.Label>Building</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Building</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="text"
           placeholder="E.g. P46"
           value={building}
@@ -93,8 +96,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomFloor" className="mb-3">
-        <Form.Label>Floor</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Floor</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="number"
           value={floor}
           onChange={(e) => setFloor(Number(e.target.value))}
@@ -105,8 +109,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomCapacity" className="mb-3">
-        <Form.Label>Capacity</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Capacity</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="number"
           value={capacity}
           onChange={(e) => setCapacity(Number(e.target.value))}
@@ -117,8 +122,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomType" className="mb-3">
-        <Form.Label>Room type</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Room type</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="text"
           placeholder="E.g. Group room (optional)"
           value={roomType}
@@ -128,8 +134,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomDescription" className="mb-3">
-        <Form.Label>Description</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Description</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           as="textarea"
           rows={3}
           placeholder="Enter room description"
@@ -140,8 +147,9 @@ export default function RoomForm({
       </Form.Group>
 
       <Form.Group controlId="formRoomAmenities" className="mb-3">
-        <Form.Label>Amenities</Form.Label>
+        <Form.Label className="small fw-semibold text-muted">Amenities</Form.Label>
         <Form.Control
+          className="bg-light border-0 py-2"
           type="text"
           placeholder="Comma separated, e.g. Whiteboard, Projector"
           value={amenities}
@@ -158,7 +166,7 @@ export default function RoomForm({
         />
       </Form.Group>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && <Alert variant="danger" className="py-2 px-3 small border-0 rounded-3">{error}</Alert>}
 
       <Button variant="primary" type="submit" disabled={submitting}>
         {submitting ? 'Saving...' : roomId ? 'Update Room' : 'Create Room'}
