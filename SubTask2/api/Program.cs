@@ -12,6 +12,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Repositories (DAL)
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
