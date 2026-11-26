@@ -79,7 +79,7 @@ public class AuthController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), // subject: the username
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(ClaimTypes.NameIdentifier, user.Id), // user id, used later for bookings
+            new Claim(ClaimTypes.NameIdentifier, user.Id), // unique identifier for the user
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // unique token id
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()) // issued at
         };
