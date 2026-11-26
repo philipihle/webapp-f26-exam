@@ -47,7 +47,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP POST endpoint to create a new room. The room data is sent in the request body as JSON and mapped to a RoomDto object. The method creates a new Room entity
-    [Authorize]
+    [Authorize(Roles = "Admin")] // only admins can change rooms, as in SubTask1
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] RoomDto roomDto)
     {
@@ -90,7 +90,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP PUT endpoint to update an existing room. The new room data is sent in the request body as JSON and mapped to a RoomDto object. Returns 404 if the room does not exist.
-    [Authorize]
+    [Authorize(Roles = "Admin")] // only admins can change rooms, as in SubTask1
     [HttpPut("update/{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] RoomDto roomDto)
     {
@@ -124,7 +124,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP DELETE endpoint to delete a room by its id. Returns 204 No Content if deleted, 400 if it fails.
-    [Authorize]
+    [Authorize(Roles = "Admin")] // only admins can change rooms, as in SubTask1
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {

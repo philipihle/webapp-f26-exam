@@ -38,6 +38,7 @@ public class AuthController : ControllerBase
 
         if (result.Succeeded)
         {
+            await _userManager.AddToRoleAsync(user, "Student"); // new users are students, as in SubTask1
             _logger.LogInformation("[AuthController] user registered for {@username}", registerDto.Username);
             return Ok(new { Message = "User registered successfully" });
         }
@@ -55,7 +56,7 @@ public class AuthController : ControllerBase
         if (user != null && await _userManager.CheckPasswordAsync(user, loginDto.Password))
         {
             _logger.LogInformation("[AuthController] user authorised for {@email}", loginDto.Email);
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
             return Ok(new { Token = token });
         }
 
@@ -63,8 +64,8 @@ public class AuthController : ControllerBase
         return Unauthorized();
     }
 
-    // Creates a signed JWT with the user's name, email and id, valid for 120 minutes
-    private string GenerateJwtToken(IdentityUser user)
+    // Creates a signed JWT with the user's name, email, id and role, valid for 120 minutes
+    private async Task<string> GenerateJwtToken(IdentityUser user)
     {
         var jwtKey = _configuration["Jwt:Key"];
         if (string.IsNullOrEmpty(jwtKey))
@@ -75,7 +76,7 @@ public class AuthController : ControllerBase
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), // subject: the username
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
@@ -83,6 +84,13 @@ public class AuthController : ControllerBase
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // unique token id
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()) // issued at
         };
+
+        // Add the user's roles (Admin or Student) so [Authorize(Roles = "Admin")] and the frontend can use them
+        var roles = await _userManager.GetRolesAsync(user);
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim("role", role));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],

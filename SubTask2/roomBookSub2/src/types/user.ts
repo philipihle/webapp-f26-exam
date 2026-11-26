@@ -8,4 +8,5 @@ export interface User {
   exp: number; // expires at (unix seconds)
   iss: string; // issuer
   aud: string; // audience
+  role?: string; // "Admin" or "Student"
 }
