@@ -4,7 +4,7 @@ import type { Room } from '../types/room';
 
 interface RoomTableProps {
   rooms: Room[];
-  onRoomDeleted: (room: Room) => void;
+  onRoomDeleted?: (room: Room) => void; // only passed when the user is logged in
 }
 
 // Rooms shown as a table (alternative to RoomGrid)
@@ -19,7 +19,7 @@ export default function RoomTable({ rooms, onRoomDeleted }: RoomTableProps) {
             <th>Building</th>
             <th>Floor</th>
             <th>Capacity</th>
-            <th>Actions</th>
+            {onRoomDeleted && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -30,14 +30,16 @@ export default function RoomTable({ rooms, onRoomDeleted }: RoomTableProps) {
               <td>{room.building}</td>
               <td>{room.floor}</td>
               <td>{room.capacity}</td>
-              <td className="text-center">
-                <Link to={`/roomupdate/${room.id}`}>Update</Link>
-                <Button
-                  onClick={() => onRoomDeleted(room)}
-                  variant="link"
-                  className="text-danger"
-                >Delete</Button>
-              </td>
+              {onRoomDeleted && (
+                <td className="text-center">
+                  <Link to={`/roomupdate/${room.id}`}>Update</Link>
+                  <Button
+                    onClick={() => onRoomDeleted(room)}
+                    variant="link"
+                    className="text-danger"
+                  >Delete</Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

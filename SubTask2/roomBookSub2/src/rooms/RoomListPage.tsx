@@ -6,6 +6,7 @@ import RoomGrid from './RoomGrid';
 import RoomTable from './RoomTable';
 import type { Room } from '../types/room';
 import * as RoomService from './RoomService';
+import { useAuth } from '../auth/AuthContext';
 
 export default function RoomListPage() {
   const [showGrid, setShowGrid] = useState<boolean>(true); // cards by default, as in SubTask1
@@ -17,6 +18,7 @@ export default function RoomListPage() {
   });
 
   const queryClient = useQueryClient();
+  const { user } = useAuth(); // logged-in user, or null
 
   // Delete a room, then refetch the list so the page updates
   const deleteMutation = useMutation({
@@ -46,7 +48,7 @@ export default function RoomListPage() {
           <Button variant="outline-primary" size="sm" onClick={toggleGridOrTable}>
             {showGrid ? 'Display Table' : 'Display Cards'}
           </Button>
-          <Link to="/roomcreate" className="btn btn-primary btn-sm">Add New Room</Link>
+          {user && <Link to="/roomcreate" className="btn btn-primary btn-sm">Add New Room</Link>}
         </div>
       </div>
 
@@ -60,8 +62,8 @@ export default function RoomListPage() {
           <p className="text-muted small mb-0">Add a room to get started.</p>
         </div>
       ) : showGrid
-        ? <RoomGrid rooms={rooms} onRoomDeleted={handleRoomDeleted} />
-        : <RoomTable rooms={rooms} onRoomDeleted={handleRoomDeleted} />}
+        ? <RoomGrid rooms={rooms} onRoomDeleted={user ? handleRoomDeleted : undefined} />
+        : <RoomTable rooms={rooms} onRoomDeleted={user ? handleRoomDeleted : undefined} />}
     </div>
   );
 }

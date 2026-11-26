@@ -4,7 +4,7 @@ import type { Room } from '../types/room';
 
 interface RoomGridProps {
   rooms: Room[];
-  onRoomDeleted: (room: Room) => void;
+  onRoomDeleted?: (room: Room) => void; // only passed when the user is logged in
 }
 
 // Room cards, same markup and classes as Views/Rooms/Index.cshtml in SubTask1
@@ -41,12 +41,14 @@ export default function RoomGrid({ rooms, onRoomDeleted }: RoomGridProps) {
               </div>
             </div>
 
-            <div className="p-4 pt-0 d-flex gap-2">
-              <Link to={`/roomupdate/${room.id}`} className="btn btn-outline-primary btn-sm w-100">Update</Link>
-              <Button variant="outline-danger" size="sm" className="w-100" onClick={() => onRoomDeleted(room)}>
-                Delete
-              </Button>
-            </div>
+            {onRoomDeleted && (
+              <div className="p-4 pt-0 d-flex gap-2">
+                <Link to={`/roomupdate/${room.id}`} className="btn btn-outline-primary btn-sm w-100">Update</Link>
+                <Button variant="outline-danger" size="sm" className="w-100" onClick={() => onRoomDeleted(room)}>
+                  Delete
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       ))}

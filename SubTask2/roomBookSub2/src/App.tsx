@@ -5,6 +5,9 @@ import RoomCreatePage from './rooms/RoomCreatePage';
 import RoomUpdatePage from './rooms/RoomUpdatePage';
 import NavMenu from './shared/NavMenu';
 import Footer from './shared/Footer';
+import { AuthProvider } from './auth/AuthContext';
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
 
 const queryClient = new QueryClient(); // one shared instance for the whole app
 
@@ -12,22 +15,26 @@ const queryClient = new QueryClient(); // one shared instance for the whole app
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="d-flex flex-column min-vh-100">
-          <NavMenu />
-          <div className="container-xl flex-grow-1 mt-4">
-            <main role="main" className="pb-4">
-              <Routes>
-                <Route path="/rooms" element={<RoomListPage />} />
-                <Route path="/roomcreate" element={<RoomCreatePage />} />
-                <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
-                <Route path="*" element={<Navigate to="/rooms" replace />} />
-              </Routes>
-            </main>
+      <AuthProvider>
+        <Router>
+          <div className="d-flex flex-column min-vh-100">
+            <NavMenu />
+            <div className="container-xl flex-grow-1 mt-4">
+              <main role="main" className="pb-4">
+                <Routes>
+                  <Route path="/rooms" element={<RoomListPage />} />
+                  <Route path="/roomcreate" element={<RoomCreatePage />} />
+                  <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="*" element={<Navigate to="/rooms" replace />} />
+                </Routes>
+              </main>
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-      </Router>
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
