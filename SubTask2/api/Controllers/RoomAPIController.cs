@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using api.DAL;
 using api.DTOs;
+using api.Models;
 
 namespace api.Controllers;
 
@@ -41,5 +42,32 @@ public class RoomAPIController : ControllerBase // ControllerBase is enough for 
             Amenities = room.Amenities
         });
         return Ok(roomDtos);
+    }
+
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromBody] RoomDto roomDto)
+    {
+        if (roomDto == null)
+        {
+            return BadRequest("Room cannot be null");
+        }
+        var newRoom = new Room
+        {
+            Name = roomDto.Name,
+            RoomCode = roomDto.RoomCode,
+            Building = roomDto.Building,
+            Floor = roomDto.Floor,
+            Capacity = roomDto.Capacity,
+            RoomType = roomDto.RoomType,
+            Description = roomDto.Description,
+            IsActive = roomDto.IsActive,
+            Amenities = roomDto.Amenities
+        };
+        bool returnOk = await _roomRepository.CreateRoomAsync(newRoom);
+        if (returnOk)
+            return CreatedAtAction(nameof(RoomList), new { id = newRoom.Id }, newRoom);
+
+        _logger.LogWarning("[RoomAPIController] Room creation failed {@room}", newRoom);
+        return StatusCode(500, "Internal server error");
     }
 }
