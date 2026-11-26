@@ -6,6 +6,8 @@ import RoomUpdatePage from './rooms/RoomUpdatePage';
 import NavMenu from './shared/NavMenu';
 import Footer from './shared/Footer';
 import { AuthProvider } from './auth/AuthContext';
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
 
 const queryClient = new QueryClient(); // one shared instance for the whole app
 
@@ -23,6 +25,8 @@ export default function App() {
                   <Route path="/rooms" element={<RoomListPage />} />
                   <Route path="/roomcreate" element={<RoomCreatePage />} />
                   <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
                   <Route path="*" element={<Navigate to="/rooms" replace />} />
                 </Routes>
               </main>

@@ -1,5 +1,6 @@
 import { Nav, Navbar, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import AuthSection from '../auth/AuthSection';
 
 // Top navigation bar, same markup and classes as _Layout.cshtml in SubTask1.
 // react-bootstrap's Navbar handles the mobile toggle (instead of Bootstrap's jQuery script).
@@ -18,6 +19,7 @@ export default function NavMenu() {
                 <span>Find a room</span>
               </Nav.Link>
             </Nav>
+            <AuthSection />
           </Navbar.Collapse>
         </Container>
       </Navbar>
