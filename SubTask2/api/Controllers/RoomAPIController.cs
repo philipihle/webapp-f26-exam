@@ -8,7 +8,7 @@ namespace api.Controllers;
 // REST API for rooms, used by the React frontend. Base URL: /api/roomapi
 [ApiController]
 [Route("api/[controller]")]
-public class RoomAPIController : ControllerBase // ControllerBase is enough for an API, no Views needed
+public class RoomAPIController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
     private readonly ILogger<RoomAPIController> _logger;
@@ -19,6 +19,7 @@ public class RoomAPIController : ControllerBase // ControllerBase is enough for 
         _logger = logger;
     }
 
+    //HTTP GET endpoint to retrieve a list of all rooms.
     [HttpGet("roomlist")]
     public async Task<IActionResult> RoomList()
     {
@@ -44,6 +45,7 @@ public class RoomAPIController : ControllerBase // ControllerBase is enough for 
         return Ok(roomDtos);
     }
 
+    //HTTP POST endpoint to create a new room. The room data is sent in the request body as JSON and mapped to a RoomDto object. The method creates a new Room entity
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] RoomDto roomDto)
     {
@@ -67,6 +69,7 @@ public class RoomAPIController : ControllerBase // ControllerBase is enough for 
         if (returnOk)
             return CreatedAtAction(nameof(RoomList), new { id = newRoom.Id }, newRoom);
 
+        //throws 500 if fails
         _logger.LogWarning("[RoomAPIController] Room creation failed {@room}", newRoom);
         return StatusCode(500, "Internal server error");
     }
