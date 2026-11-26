@@ -4,9 +4,10 @@ using api.DTOs;
 
 namespace api.Controllers;
 
+// REST API for rooms, used by the React frontend. Base URL: /api/roomapi
 [ApiController]
 [Route("api/[controller]")]
-public class RoomAPIController : ControllerBase
+public class RoomAPIController : ControllerBase // ControllerBase is enough for an API, no Views needed
 {
     private readonly IRoomRepository _roomRepository;
     private readonly ILogger<RoomAPIController> _logger;
