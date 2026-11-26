@@ -75,9 +75,9 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
                 required
-                minLength={4}
+                minLength={6}
               />
-              <Form.Text className="text-muted small">At least 4 characters, one digit and one uppercase letter.</Form.Text>
+              <Form.Text className="text-muted small">At least 6 characters, one digit and one uppercase letter.</Form.Text>
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100 mb-3" disabled={isSubmitting}>
