@@ -86,4 +86,53 @@ public class RoomAPIController : ControllerBase
         }
         return Ok(room);
     }
+
+    //HTTP PUT endpoint to update an existing room. The new room data is sent in the request body as JSON and mapped to a RoomDto object. Returns 404 if the room does not exist.
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] RoomDto roomDto)
+    {
+        if (roomDto == null)
+        {
+            return BadRequest("Room data cannot be null");
+        }
+        // Find the room in the database
+        var existingRoom = await _roomRepository.GetRoomByIdAsync(id);
+        if (existingRoom == null)
+        {
+            return NotFound("Room not found");
+        }
+        // Update the room properties
+        existingRoom.Name = roomDto.Name;
+        existingRoom.RoomCode = roomDto.RoomCode;
+        existingRoom.Building = roomDto.Building;
+        existingRoom.Floor = roomDto.Floor;
+        existingRoom.Capacity = roomDto.Capacity;
+        existingRoom.RoomType = roomDto.RoomType;
+        existingRoom.Description = roomDto.Description;
+        existingRoom.IsActive = roomDto.IsActive;
+        existingRoom.Amenities = roomDto.Amenities;
+        // Save the changes
+        bool updateSuccessful = await _roomRepository.UpdateRoomAsync(existingRoom);
+        if (updateSuccessful)
+        {
+            return Ok(existingRoom);
+        }
+
+        //throws 500 if fails
+        _logger.LogWarning("[RoomAPIController] Room update failed {@room}", existingRoom);
+        return StatusCode(500, "Internal server error");
+    }
+
+    //HTTP DELETE endpoint to delete a room by its id. Returns 204 No Content if deleted, 400 if it fails.
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        bool returnOk = await _roomRepository.DeleteRoomAsync(id);
+        if (!returnOk)
+        {
+            _logger.LogError("[RoomAPIController] Room deletion failed for the RoomId {RoomId:0000}", id);
+            return BadRequest("Room deletion failed");
+        }
+        return NoContent();
+    }
 }
