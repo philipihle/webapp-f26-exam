@@ -31,7 +31,7 @@
                     Room type:
                 </label>
                 <select name="roomType" class="form-select bg-light border-0">
-                    <option value="All" selected="@(Model.SelectedRoomType == "All" || string.IsNullOrEmpty(Model.SelectedRoomType))">All Room Types</option>
+                    <option value="All" selected="@(Model.SelectedRoomType == "All")">All Room Types</option>
                     @foreach (var type in Model.AvailableRoomTypes)
                     {
                         <option value="@type" selected="@(Model.SelectedRoomType == type)">@type</option>
@@ -43,7 +43,7 @@
                 <button type="submit" class="btn btn-primary w-100 shadow-sm">
                     Filter
                 </button>
-                @if (Model.SelectedBuilding != "All" || (Model.SelectedRoomType != "All" && !string.IsNullOrEmpty(Model.SelectedRoomType)) || Model.SelectedAmenities.Any())
+                @if (Model.SelectedBuilding != "All" || Model.SelectedRoomType != "All" || Model.SelectedAmenities.Any())
                 {
                     <a asp-controller="Rooms" asp-action="Index" class="btn btn-outline-secondary" title="Reset all filters">
                         Reset
@@ -56,7 +56,7 @@
                     Date
                 </label>
                 <input type="date" name="date"
-                       value="@(Model.Start?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))"
+                       value="@Model.Start?.ToString("yyyy-MM-dd")"
                        min="@DateTime.Today.ToString("yyyy-MM-dd")"
                        class="form-control bg-light border-0"/>
             </div>
@@ -66,9 +66,9 @@
                     From (Start time)
                 </label>
                 <input type="time" name="from"
-                       value="@(Model.Start?.ToString("HH:mm") ?? DateTime.Now.ToString("HH:00"))"
+                       value="@Model.Start?.ToString("HH:mm")"
                        min="00:00" step="900"
-                                              class="form-control bg-light border-0"/>
+                       class="form-control bg-light border-0"/>
             </div>
 
             <div class="col-md-4">
@@ -76,8 +76,8 @@
                     To (End time)
                 </label>
                 <input type="time" name="to"
-                       value="@(Model.End?.ToString("HH:mm") ?? DateTime.Now.AddHours(1).ToString("HH:00"))"
-                       min="@(Model.Start?.ToString("HH:mm") ?? "00:00")" step="900"
+                       value="@Model.End?.ToString("HH:mm")"
+                       min="00:00" step="900"
                        class="form-control bg-light border-0"/>
             </div>
             <div class="col-12 mt-3 pt-3 border-top">

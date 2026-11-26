@@ -5,6 +5,7 @@ namespace webapp_f26_exam.ViewModels;
 public class LoginViewModel
 {
     [Required]
+    [EmailAddress]
     [Display(Name = "Email")]
     public string Email { get; set; } = string.Empty;
 
