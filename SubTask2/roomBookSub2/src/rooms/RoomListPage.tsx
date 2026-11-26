@@ -63,7 +63,7 @@ export default function RoomListPage() {
           <p className="text-muted small mb-0">Add a room to get started.</p>
         </div>
       ) : showGrid
-        ? <RoomGrid rooms={rooms} onRoomDeleted={isAdmin ? handleRoomDeleted : undefined} />
+        ? <RoomGrid rooms={rooms} onRoomDeleted={isAdmin ? handleRoomDeleted : undefined} canBook={!!user} />
         : <RoomTable rooms={rooms} onRoomDeleted={isAdmin ? handleRoomDeleted : undefined} />}
     </div>
   );
