@@ -18,6 +18,7 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 // Repositories (DAL)
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 // Identity: users and passwords are stored in MyDbContext (same password rules as SubTask1)
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
