@@ -46,20 +46,20 @@ public class AuthController : ControllerBase
         return BadRequest(result.Errors);
     }
 
-    //HTTP POST endpoint to log in. Returns a JWT if the username and password are correct, otherwise 401.
+    //HTTP POST endpoint to log in with email and password. Returns a JWT if they are correct, otherwise 401.
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        var user = await _userManager.FindByNameAsync(loginDto.Username);
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
         if (user != null && await _userManager.CheckPasswordAsync(user, loginDto.Password))
         {
-            _logger.LogInformation("[AuthController] user authorised for {@username}", loginDto.Username);
+            _logger.LogInformation("[AuthController] user authorised for {@email}", loginDto.Email);
             var token = GenerateJwtToken(user);
             return Ok(new { Token = token });
         }
 
-        _logger.LogWarning("[AuthController] user not authorised for {@username}", loginDto.Username);
+        _logger.LogWarning("[AuthController] user not authorised for {@email}", loginDto.Email);
         return Unauthorized();
     }
 

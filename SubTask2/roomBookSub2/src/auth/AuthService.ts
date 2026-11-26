@@ -19,7 +19,7 @@ export const login = async (credentials: LoginDto): Promise<AuthResponse> => {
   });
 
   if (!response.ok) {
-    throw new Error('Login failed. Please check your username and password.');
+    throw new Error('Login failed. Please check your email and password.');
   }
   return response.json();
 };
