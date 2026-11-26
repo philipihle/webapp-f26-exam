@@ -19,6 +19,7 @@ export default function RoomListPage() {
 
   const queryClient = useQueryClient();
   const { user } = useAuth(); // logged-in user, or null
+  const isAdmin = user?.role === 'Admin'; // only admins can change rooms, as in SubTask1
 
   // Delete a room, then refetch the list so the page updates
   const deleteMutation = useMutation({
@@ -48,7 +49,7 @@ export default function RoomListPage() {
           <Button variant="outline-primary" size="sm" onClick={toggleGridOrTable}>
             {showGrid ? 'Display Table' : 'Display Cards'}
           </Button>
-          {user && <Link to="/roomcreate" className="btn btn-primary btn-sm">Add New Room</Link>}
+          {isAdmin && <Link to="/roomcreate" className="btn btn-primary btn-sm">Add New Room</Link>}
         </div>
       </div>
 
@@ -62,8 +63,8 @@ export default function RoomListPage() {
           <p className="text-muted small mb-0">Add a room to get started.</p>
         </div>
       ) : showGrid
-        ? <RoomGrid rooms={rooms} onRoomDeleted={user ? handleRoomDeleted : undefined} />
-        : <RoomTable rooms={rooms} onRoomDeleted={user ? handleRoomDeleted : undefined} />}
+        ? <RoomGrid rooms={rooms} onRoomDeleted={isAdmin ? handleRoomDeleted : undefined} />
+        : <RoomTable rooms={rooms} onRoomDeleted={isAdmin ? handleRoomDeleted : undefined} />}
     </div>
   );
 }
