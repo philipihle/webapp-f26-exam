@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -137,18 +136,6 @@ public class BookingController : Controller
         return RedirectToAction("BookingConfirmed", "Booking", new { id = booking.Id });
     }
 
-    private async Task LoadRoomDetailsAsync(BookingCreateViewModel model, Room room, string currentUserId)
-    {
-        model.Room = room;
-        model.CurrentUserId = currentUserId;
-
-        var allBookings = await _bookingRepository.GetAllBookingsAsync();
-        model.UpcomingBookings = allBookings
-            .Where(b => b.RoomId == room.Id && b.End >= DateTime.Now)
-            .OrderBy(b => b.Start)
-            .ToList();
-    }
-
     public async Task<IActionResult> BookingConfirmed(int id)
     {
         var booking = await _bookingRepository.GetBookingByIdAsync(id);
@@ -158,14 +145,16 @@ public class BookingController : Controller
             return NotFound();
         }
 
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUserId = _userManager.GetUserId(User) ?? string.Empty;
+        var messages = await _bookingRepository.GetMessagesByBookingIdAsync(id);
+
         var viewModel = new BookingDetailsViewModel
         {
             Booking = booking,
             CurrentUserId = currentUserId,
             IsOwner = booking.UserId == currentUserId,
             IsParticipant = IsUserParticipating(booking, currentUserId),
-            ChatMessages = await _bookingRepository.GetMessagesByBookingIdAsync(id)
+            ChatMessages = messages
         };
 
         return View(viewModel);
@@ -357,6 +346,18 @@ public class BookingController : Controller
         return RedirectToAction("BookingConfirmed", "Booking", new { id = id });
     }
 
+    private async Task LoadRoomDetailsAsync(BookingCreateViewModel model, Room room, string currentUserId)
+    {
+        model.Room = room;
+        model.CurrentUserId = currentUserId;
+
+        var allBookings = await _bookingRepository.GetAllBookingsAsync();
+        model.UpcomingBookings = allBookings
+            .Where(b => b.RoomId == room.Id && b.End >= DateTime.Now)
+            .OrderBy(b => b.Start)
+            .ToList();
+    }
+
     private bool IsUserParticipating(Booking booking, string? userId)
     {
         if (string.IsNullOrEmpty(userId)) return false;
@@ -381,22 +382,28 @@ public class BookingController : Controller
 
         var booking = await _bookingRepository.GetBookingByIdAsync(bookingId);
         if (booking == null) return NotFound();
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUserId = _userManager.GetUserId(User) ?? string.Empty;
         if (!IsUserParticipating(booking, currentUserId))
         {
+            _logger.LogWarning("SendChatMessage forbidden: user {UserId} is not participating in booking {BookingId}", currentUserId, bookingId);
             return Forbid();
         }
         var chatMessage = new BookingChat
         {
             BookingId = bookingId,
-            UserId = currentUserId!,
+            UserId = currentUserId,
             Message = message.Trim(),
             SentAt = DateTime.Now
         };
         var success = await _bookingRepository.AddMessageAsync(chatMessage);
         if (!success)
         {
+            _logger.LogWarning("Failed to save chat message for booking {BookingId}", bookingId);
             TempData["ChatError"] = "Failed to send message.";
+        }
+        else
+        {
+            _logger.LogInformation("Chat message sent in booking {BookingId} by user {UserId}", bookingId, currentUserId);
         }
         return RedirectToAction("BookingConfirmed", new { id = bookingId });
     }
@@ -418,14 +425,16 @@ public class BookingController : Controller
             return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
         }
 
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUserId = _userManager.GetUserId(User) ?? string.Empty;
         if (message.UserId != currentUserId)
         {
+            _logger.LogWarning("EditChatMessage forbidden: user {UserId} tried to edit message {MessageId}", currentUserId, messageId);
             return Forbid();
         }
         message.Message = newMessage.Trim();
         message.UpdatedAt = DateTime.Now;
         await _bookingRepository.UpdateMessageAsync(message);
+        _logger.LogInformation("Chat message {MessageId} edited by user {UserId}", messageId, currentUserId);
         return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
     }
     [HttpPost]
@@ -433,7 +442,7 @@ public class BookingController : Controller
     {
         var message = await _bookingRepository.GetMessageByIdAsync(messageId);
         if (message == null) return NotFound();
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUserId = _userManager.GetUserId(User) ?? string.Empty;
         var booking = await _bookingRepository.GetBookingByIdAsync(message.BookingId);
         bool isAuthor = message.UserId == currentUserId;
         bool isOrganizer = booking != null && booking.UserId == currentUserId;
@@ -441,9 +450,11 @@ public class BookingController : Controller
 
         if (!isAuthor && !isOrganizer && !isAdmin)
         {
+            _logger.LogWarning("DeleteChatMessage forbidden: user {UserId} tried to delete message {MessageId}", currentUserId, messageId);
             return Forbid();
         }
         await _bookingRepository.DeleteMessageAsync(messageId);
+        _logger.LogInformation("Chat message {MessageId} deleted by user {UserId}", messageId, currentUserId);
         return RedirectToAction("BookingConfirmed", new { id = message.BookingId });
     }
 }

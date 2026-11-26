@@ -10,5 +10,6 @@ public class UserRoleItemViewModel
 
 public class RolesViewModel
 {
+    public string CurrentUserId { get; set; } = string.Empty;
     public List<UserRoleItemViewModel> Users { get; set; } = new();
 }
