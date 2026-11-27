@@ -31,6 +31,14 @@ export default function MyBookingsPage() {
     },
   });
 
+  // Switch JoinFlag on an own booking, then refetch so the button text changes
+  const toggleMutation = useMutation({
+    mutationFn: BookingService.toggleJoinFlag,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mybookings'] });
+    },
+  });
+
   // Leave a joined booking, then refetch the joined list
   const leaveMutation = useMutation({
     mutationFn: ParticipantService.leaveBooking,
@@ -78,6 +86,7 @@ export default function MyBookingsPage() {
       {error && <Alert variant="danger">Failed to fetch bookings.</Alert>}
       {cancelMutation.error && <Alert variant="danger">{cancelMutation.error.message}</Alert>}
       {leaveMutation.error && <Alert variant="danger">{leaveMutation.error.message}</Alert>}
+      {toggleMutation.error && <Alert variant="danger">{toggleMutation.error.message}</Alert>}
 
       <div className="mb-5">
         <h4 className="fw-bold mb-3">Upcoming Sessions</h4>
@@ -109,6 +118,12 @@ export default function MyBookingsPage() {
                     </div>
 
                     <div className="mt-auto pt-2 d-flex justify-content-end gap-2 border-top">
+                      {/* Owner can switch visibility, same button texts as BookingConfirmed.cshtml in SubTask1 */}
+                      {booking.isOrganizer && (
+                        <Button variant="outline-secondary" size="sm" onClick={() => toggleMutation.mutate(booking.id!)}>
+                          {booking.joinFlag ? 'Change to Private' : 'Allow others to join'}
+                        </Button>
+                      )}
                       {/* Owner can cancel, participant can leave */}
                       {booking.isOrganizer
                         ? <Button variant="outline-danger" size="sm" onClick={() => handleCancel(booking)}>Cancel</Button>
