@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using api.DAL;
@@ -69,7 +70,11 @@ public class RoomAPIController : ControllerBase
         };
         bool returnOk = await _roomRepository.CreateRoomAsync(newRoom);
         if (returnOk)
+        {
+            // Success log: room created
+            _logger.LogInformation("[RoomAPIController] Room {RoomId} ({RoomName}) created by admin {UserName}", newRoom.Id, newRoom.Name, CurrentUserName);
             return CreatedAtAction(nameof(RoomList), new { id = newRoom.Id }, newRoom);
+        }
 
         //throws 500 if fails
         _logger.LogWarning("[RoomAPIController] Room creation failed {@room}", newRoom);
@@ -115,6 +120,8 @@ public class RoomAPIController : ControllerBase
         bool updateSuccessful = await _roomRepository.UpdateRoomAsync(existingRoom);
         if (updateSuccessful)
         {
+            // Success log: room updated
+            _logger.LogInformation("[RoomAPIController] Room {RoomId} ({RoomName}) updated by admin {UserName}", existingRoom.Id, existingRoom.Name, CurrentUserName);
             return Ok(existingRoom);
         }
 
@@ -134,6 +141,11 @@ public class RoomAPIController : ControllerBase
             _logger.LogError("[RoomAPIController] Room deletion failed for the RoomId {RoomId:0000}", id);
             return BadRequest("Room deletion failed");
         }
+        // Success log: room deleted
+        _logger.LogInformation("[RoomAPIController] Room {RoomId} deleted by admin {UserName}", id, CurrentUserName);
         return NoContent();
     }
+
+    // Username of the logged-in user, read from the "sub" claim in the JWT (used in log messages)
+    private string CurrentUserName => User.FindFirstValue("sub") ?? "unknown";
 }
