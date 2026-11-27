@@ -40,6 +40,14 @@ export async function fetchMyBookings(): Promise<Booking[]> {
   return handleResponse<Booking[]>(response);
 }
 
+// Upcoming bookings in one room, shown in the table on the booking page
+export async function fetchRoomBookings(roomId: string): Promise<Booking[]> {
+  const response = await fetch(`${API_URL}/api/bookingapi/room/${roomId}`, {
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<Booking[]>(response);
+}
+
 export async function createBooking(booking: Booking): Promise<{ id: number }> {
   const response = await fetch(`${API_URL}/api/bookingapi/create`, {
     method: 'POST',

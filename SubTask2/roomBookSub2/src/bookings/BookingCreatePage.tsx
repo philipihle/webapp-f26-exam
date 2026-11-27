@@ -4,6 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Button, Alert } from 'react-bootstrap';
 import * as RoomService from '../rooms/RoomService';
 import * as BookingService from './BookingService';
+import * as ParticipantService from './ParticipantService';
+import { useAuth } from '../auth/AuthContext';
+import type { Booking } from '../types/booking';
 
 // Booking page for one room. Layout and classes follow Views/Booking/Create.cshtml in SubTask1:
 // room details on the left, booking form on the right.
@@ -32,6 +35,29 @@ export default function BookingCreatePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mybookings'] });
       navigate('/mybookings');
+    },
+  });
+
+  const { user } = useAuth(); // user.sub is the username, used to find "Host"
+
+  // Upcoming bookings in this room, for the table at the bottom
+  const { data: roomBookings = [] } = useQuery<Booking[], Error>({
+    queryKey: ['roombookings', roomId],
+    queryFn: () => BookingService.fetchRoomBookings(roomId!),
+    enabled: !!roomId,
+  });
+
+  // Bookings the user has joined, used to show "Joined"
+  const { data: joinedBookings = [] } = useQuery<Booking[], Error>({
+    queryKey: ['joinedbookings'],
+    queryFn: ParticipantService.fetchJoinedBookings,
+  });
+
+  // Join a booking, then refetch so the button changes to "Joined"
+  const joinMutation = useMutation({
+    mutationFn: ParticipantService.joinBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['joinedbookings'] });
     },
   });
 
@@ -170,6 +196,55 @@ export default function BookingCreatePage() {
             <div className="text-center mt-3 small text-muted">
               You can view and manage your reservation under My Bookings.
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming bookings in this room, same table as Create.cshtml in SubTask1 */}
+      <div className="card border-0 shadow-sm rounded-4">
+        <div className="card-body p-4">
+          <h5 className="fw-bold mb-3">Upcoming Sessions in this Room</h5>
+          {joinMutation.error && (
+            <Alert variant="danger" className="py-2 px-3 small border-0 rounded-3 mb-3">
+              {joinMutation.error.message}
+            </Alert>
+          )}
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">From</th>
+                  <th scope="col">To</th>
+                  <th scope="col" className="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {roomBookings.map(booking => (
+                  <tr key={booking.id}>
+                    <td className="fw-semibold text-dark">{booking.userName ?? 'Student'}</td>
+                    <td>{booking.start.split('T')[0]}</td>
+                    <td>{booking.start.substring(11, 16)}</td>
+                    <td>{booking.end.substring(11, 16)}</td>
+                    <td className="text-end">
+                      {/* Same order of checks as SubTask1 */}
+                      {!booking.joinFlag ? (
+                        <span className="text-muted small">Private</span>
+                      ) : booking.userName === user?.sub ? (
+                        <span className="badge bg-secondary">Host</span>
+                      ) : joinedBookings.some(b => b.id === booking.id) ? (
+                        <span className="badge bg-success">Joined</span>
+                      ) : (
+                        <Button variant="outline-primary" size="sm" onClick={() => joinMutation.mutate(booking.id!)}>
+                          Join
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

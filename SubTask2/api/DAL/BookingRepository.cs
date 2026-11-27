@@ -65,6 +65,24 @@ public class BookingRepository : IBookingRepository
         }
     }
 
+    // Bookings for one room that have not ended yet, earliest first
+    public async Task<IEnumerable<Booking>?> GetUpcomingBookingsByRoomIdAsync(int roomId)
+    {
+        try
+        {
+            return await _context.Bookings
+                .Include(b => b.User)
+                .Where(b => b.RoomId == roomId && b.End > DateTime.Now)
+                .OrderBy(b => b.Start)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BookingRepository] Failed to get upcoming bookings for room {RoomId}", roomId);
+            return null;
+        }
+    }
+
     // True if the room already has a booking that overlaps the given time slot
     public async Task<bool> HasConflictAsync(int roomId, DateTime start, DateTime end, int? excludeBookingId = null)
     {
