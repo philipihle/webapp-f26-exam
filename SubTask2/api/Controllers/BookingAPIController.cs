@@ -54,6 +54,19 @@ public class BookingAPIController : ControllerBase
         return Ok(bookings.Select(ToDto));
     }
 
+    //HTTP GET endpoint to retrieve upcoming bookings for one room, so students can see and join them.
+    [HttpGet("room/{roomId}")]
+    public async Task<IActionResult> RoomBookings(int roomId)
+    {
+        var bookings = await _bookingRepository.GetUpcomingBookingsByRoomIdAsync(roomId);
+        if (bookings == null)
+        {
+            _logger.LogError("[BookingAPIController] Upcoming bookings not found for room {RoomId}", roomId);
+            return NotFound("Bookings not found");
+        }
+        return Ok(bookings.Select(ToDto));
+    }
+
     //HTTP GET endpoint to retrieve one booking by its id. Returns 404 if the booking does not exist.
     [HttpGet("{id}")]
     public async Task<IActionResult> GetBooking(int id)
