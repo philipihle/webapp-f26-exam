@@ -20,4 +20,6 @@ public class Booking
     public string Purpose { get; set; } = string.Empty;
 
     public bool JoinFlag { get; set; } = false;
+
+    public ICollection<BookingParticipant> Participants { get; set; } = new List<BookingParticipant>();
 }
