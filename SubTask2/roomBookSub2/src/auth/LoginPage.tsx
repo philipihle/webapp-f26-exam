@@ -5,10 +5,10 @@ import { useAuth } from './AuthContext';
 
 // Login form. Layout and classes follow Views/Account/Login.cshtml in SubTask1.
 export default function LoginPage() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -29,53 +29,33 @@ export default function LoginPage() {
   return (
     <div className="row justify-content-center py-5">
       <div className="col-md-5 col-lg-4">
-        <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5">
           <div className="text-center mb-4">
             <h3 className="fw-bold mb-1">Sign In</h3>
             <p className="text-muted small">Access your study room reservations</p>
           </div>
 
-          {error && <Alert variant="danger" className="py-2 px-3 small border-0 rounded-3">{error}</Alert>}
+          {error && <Alert variant="danger" className="py-2 small">{error}</Alert>}
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formLoginEmail">
               <Form.Label className="small fw-semibold text-muted">Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="name@domain.no"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
-                required
-                autoFocus
-              />
+              <Form.Control type="email" placeholder="name@domain.no" value={email}
+                onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} required autoFocus />
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formLoginPassword">
               <Form.Label className="small fw-semibold text-muted">Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
+              <Form.Control type="password" placeholder="••••••••" value={password}
+                onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} required />
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100 mb-3" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign in'
-              )}
+              {isSubmitting ? <><Spinner animation="border" size="sm" className="me-2" />Signing in...</> : 'Sign in'}
             </Button>
 
             <div className="text-center small text-muted">
-              New here? <Link to="/register" className="text-decoration-none fw-semibold text-primary">Create an account</Link>
+              New here? <Link to="/register" className="text-decoration-none fw-semibold">Create an account</Link>
             </div>
           </Form>
         </div>

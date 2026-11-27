@@ -2,10 +2,8 @@
 export default function Footer() {
   return (
     <footer className="border-top py-4 mt-auto bg-white">
-      <div className="container-fluid px-3 px-lg-4 d-flex justify-content-between align-items-center text-muted small">
-        <div>
-          <strong>BookingPortal</strong>
-        </div>
+      <div className="container-fluid px-4 text-muted small">
+        <strong>BookingPortal</strong>
       </div>
     </footer>
   );

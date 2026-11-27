@@ -74,7 +74,7 @@ export default function MyBookingsPage() {
     <div className="py-4 text-start">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-          <h1 className="h2 fw-bold text-dark mb-1">My Bookings</h1>
+          <h1 className="h2 fw-bold mb-1">My Bookings</h1>
           <p className="text-secondary mb-0">View and manage your upcoming and previous reservations.</p>
         </div>
         <div>
@@ -92,7 +92,7 @@ export default function MyBookingsPage() {
         <h4 className="fw-bold mb-3">Upcoming Sessions</h4>
 
         {!isLoading && upcomingBookings.length === 0 ? (
-          <div className="card border-0 shadow-sm rounded-4 text-center p-5 bg-white">
+          <div className="card border-0 shadow-sm rounded-4 text-center p-5">
             <h5 className="fw-bold mb-1">No upcoming bookings</h5>
             <p className="text-muted small mb-3">You do not have any active room reservations at the moment.</p>
             <div>
@@ -105,15 +105,13 @@ export default function MyBookingsPage() {
               <div className="col-lg-6" key={booking.id}>
                 <div className="card border-0 shadow-sm rounded-4 h-100">
                   <div className="card-body p-4 d-flex flex-column">
-                    <div className="mb-3">
-                      <h5 className="fw-bold text-dark mb-1">{booking.roomName}</h5>
-                    </div>
+                    <h5 className="fw-bold mb-3">{booking.roomName}</h5>
 
                     <div className="bg-light rounded-3 p-3 mb-3">
-                      <div className="text-dark fw-semibold mb-1">{formatDate(booking.start)}</div>
+                      <div className="fw-semibold mb-1">{formatDate(booking.start)}</div>
                       <div className="text-muted small">
-                        <span>{formatTime(booking.start)} – {formatTime(booking.end)}</span>
-                        {booking.purpose && <span> &bull; {booking.purpose}</span>}
+                        {formatTime(booking.start)} – {formatTime(booking.end)}
+                        {booking.purpose && <> &bull; {booking.purpose}</>}
                       </div>
                     </div>
 
@@ -138,8 +136,8 @@ export default function MyBookingsPage() {
       </div>
 
       {pastBookings.length > 0 && (
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-          <div className="card-header bg-white border-bottom py-3">
+        <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+          <div className="card-header bg-white py-3">
             <h5 className="fw-bold mb-0">Previous Bookings ({pastBookings.length})</h5>
           </div>
           <div className="table-responsive">

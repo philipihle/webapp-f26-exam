@@ -32,7 +32,7 @@ export default function RoomUpdatePage() {
       <div className="mb-4">
         <Link to="/rooms" className="btn btn-outline-secondary btn-sm">Back to all rooms</Link>
       </div>
-      <div className="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+      <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5">
         <h4 className="fw-bold mb-1">Update Room</h4>
         <p className="text-muted small mb-4">Change the details for {roomQuery.data.name}.</p>
         <RoomForm

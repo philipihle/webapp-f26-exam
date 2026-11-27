@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers;
 
@@ -62,6 +63,55 @@ public class AuthController : ControllerBase
 
         _logger.LogWarning("[AuthController] user not authorised for {@email}", loginDto.Email);
         return Unauthorized();
+    }
+
+    [Authorize]
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateAccount([FromBody] AccountDto accountDto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = userId != null ? await _userManager.FindByIdAsync(userId) : null;
+        if (user == null)
+        {
+            _logger.LogWarning("[AuthController] user not found for {@email}", accountDto.Email);
+            return NotFound("User not found");
+        }
+
+        if (!string.Equals(user.Email, accountDto.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingUser = await _userManager.FindByEmailAsync(accountDto.Email!);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                return BadRequest(new { title = "Email is already in use." });
+            }
+
+            var emailResult = await _userManager.SetEmailAsync(user, accountDto.Email);
+            if (!emailResult.Succeeded)
+            {
+                return BadRequest(emailResult.Errors);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(accountDto.Password))
+        {
+            if (accountDto.Password != accountDto.ConfirmPassword)
+            {
+                _logger.LogWarning("[AuthController] password and confirm password do not match for {@email}", accountDto.Email);
+                return BadRequest("Password and Confirm Password do not match");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await _userManager.ResetPasswordAsync(user, token, accountDto.Password);
+
+            if (!resetResult.Succeeded)
+            {
+                _logger.LogWarning("[AuthController] password reset failed for {@email}", accountDto.Email);
+                return BadRequest(resetResult.Errors);
+            }
+        }
+
+        _logger.LogInformation("[AuthController] user updated for {@email}", accountDto.Email);
+        return Ok(new { Message = "User updated successfully" });
     }
 
     // Creates a signed JWT with the user's name, email, id and role, valid for 120 minutes

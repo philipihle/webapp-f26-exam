@@ -10,7 +10,7 @@ interface RoomTableProps {
 // Rooms shown as a table (alternative to RoomGrid)
 export default function RoomTable({ rooms, onRoomDeleted }: RoomTableProps) {
   return (
-    <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
       <Table hover className="mb-0">
         <thead>
           <tr>

@@ -9,9 +9,9 @@ import * as RoomService from './RoomService';
 import { useAuth } from '../auth/AuthContext';
 
 export default function RoomListPage() {
-  const [showGrid, setShowGrid] = useState<boolean>(true); // cards by default, as in SubTask1
-  const [searchQuery, setSearchQuery] = useState<string>(''); // search text, as in the lecturer's ItemListPage
-  const [building, setBuilding] = useState<string>(''); // '' = all buildings
+  const [showGrid, setShowGrid] = useState(true); // cards by default, as in SubTask1
+  const [searchQuery, setSearchQuery] = useState(''); // search text, as in the lecturer's ItemListPage
+  const [building, setBuilding] = useState(''); // '' = all buildings
 
   // Fetch rooms through the service layer; React Query tracks loading and error
   const { data: rooms = [], isLoading, error } = useQuery<Room[], Error>({
@@ -54,7 +54,7 @@ export default function RoomListPage() {
     <div className="py-4 text-start">
       <div className="row align-items-center justify-content-between mb-4">
         <div className="col-md-8">
-          <h1 className="h2 fw-bold text-dark mb-1">Booking Portal</h1>
+          <h1 className="h2 fw-bold mb-1">Booking Portal</h1>
           <p className="text-secondary mb-0">Browse and book study rooms, auditoriums and meeting rooms</p>
         </div>
         <div className="col-md-4 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
@@ -68,16 +68,11 @@ export default function RoomListPage() {
       {/* Search and filter */}
       <div className="row g-2 mb-4">
         <Form.Group className="col-md-8">
-          <Form.Control
-            type="text"
-            className="bg-light border-0"
-            placeholder="Search by name or description"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
+          <Form.Control type="text" placeholder="Search by name or description"
+            value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </Form.Group>
         <Form.Group className="col-md-4">
-          <Form.Select className="bg-light border-0" value={building} onChange={e => setBuilding(e.target.value)}>
+          <Form.Select value={building} onChange={e => setBuilding(e.target.value)}>
             <option value="">All buildings</option>
             {buildings.map(b => <option key={b} value={b}>{b}</option>)}
           </Form.Select>
@@ -89,7 +84,7 @@ export default function RoomListPage() {
       {deleteMutation.isError && <p className="text-danger">Failed to delete room.</p>}
 
       {!isLoading && !error && rooms.length === 0 ? (
-        <div className="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+        <div className="card border-0 shadow-sm rounded-4 p-5 text-center my-4">
           <h4 className="fw-bold mb-1">No rooms yet</h4>
           <p className="text-muted small mb-0">Add a room to get started.</p>
         </div>

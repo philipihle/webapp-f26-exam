@@ -111,45 +111,6 @@ public class BookingAPIController : ControllerBase
         return StatusCode(500, "Internal server error");
     }
 
-    //HTTP PUT endpoint to update a booking. Only the owner or an admin can update it, and the domain rule is checked again.
-    [HttpPut("update/{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] BookingDto bookingDto)
-    {
-        var existingBooking = await _bookingRepository.GetBookingByIdAsync(id);
-        if (existingBooking == null)
-        {
-            return NotFound("Booking not found");
-        }
-        if (existingBooking.UserId != CurrentUserId && !User.IsInRole("Admin"))
-        {
-            _logger.LogWarning("[BookingAPIController] User {UserId} tried to update booking {BookingId} owned by another user", CurrentUserId, id);
-            return Forbid();
-        }
-
-        var error = await ValidateBooking(bookingDto, id);
-        if (error != null)
-        {
-            return BadRequest(error);
-        }
-
-        existingBooking.RoomId = bookingDto.RoomId;
-        existingBooking.Start = bookingDto.Start;
-        existingBooking.End = bookingDto.End;
-        existingBooking.Purpose = bookingDto.Purpose;
-        existingBooking.JoinFlag = bookingDto.JoinFlag;
-        bool updateSuccessful = await _bookingRepository.UpdateBookingAsync(existingBooking);
-        if (updateSuccessful)
-        {
-            // Success log: booking updated
-            _logger.LogInformation("[BookingAPIController] Booking {BookingId} updated by user {UserId}", id, CurrentUserId);
-            return Ok(ToDto(existingBooking));
-        }
-
-        //throws 500 if fails
-        _logger.LogWarning("[BookingAPIController] Booking update failed for BookingId {BookingId:0000}", id);
-        return StatusCode(500, "Internal server error");
-    }
-
     //HTTP PUT endpoint to switch JoinFlag on/off (open for others or private). Only the owner, like ToggleJoinFlag in SubTask1.
     [HttpPut("togglejoinflag/{id}")]
     public async Task<IActionResult> ToggleJoinFlag(int id)
@@ -253,8 +214,8 @@ public class BookingAPIController : ControllerBase
         return null;
     }
 
-    // Maps a Booking entity to the DTO sent to the frontend
-    private static BookingDto ToDto(Booking booking) => new BookingDto
+    // Maps a Booking entity to the DTO sent to the frontend (reused by BookingParticipantAPIController)
+    internal static BookingDto ToDto(Booking booking) => new BookingDto
     {
         Id = booking.Id,
         RoomId = booking.RoomId,

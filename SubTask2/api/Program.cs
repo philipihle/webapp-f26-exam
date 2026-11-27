@@ -69,6 +69,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Apply any pending EF Core migrations on startup so the local SQLite database
+// stays up to date without needing to run `dotnet ef database update` manually.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
