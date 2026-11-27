@@ -140,6 +140,8 @@ public class BookingAPIController : ControllerBase
         bool updateSuccessful = await _bookingRepository.UpdateBookingAsync(existingBooking);
         if (updateSuccessful)
         {
+            // Success log: booking updated
+            _logger.LogInformation("[BookingAPIController] Booking {BookingId} updated by user {UserId}", id, CurrentUserId);
             return Ok(ToDto(existingBooking));
         }
 
@@ -204,6 +206,8 @@ public class BookingAPIController : ControllerBase
             _logger.LogError("[BookingAPIController] Booking deletion failed for the BookingId {BookingId:0000}", id);
             return BadRequest("Booking deletion failed");
         }
+        // Success log: booking cancelled
+        _logger.LogInformation("[BookingAPIController] Booking {BookingId} cancelled by user {UserId}", id, CurrentUserId);
         return NoContent();
     }
 
