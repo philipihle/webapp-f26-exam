@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Alert } from 'react-bootstrap';
 import type { Booking } from '../types/booking';
 import * as BookingService from './BookingService';
+import * as ParticipantService from './ParticipantService';
 
 // Date helpers: "27.11.2026" and "10:00", same format as SubTask1
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -17,10 +18,24 @@ export default function MyBookingsPage() {
     queryFn: BookingService.fetchMyBookings,
   });
 
+  // Bookings the user has joined as a participant
+  const { data: joinedBookings = [] } = useQuery<Booking[], Error>({
+    queryKey: ['joinedbookings'],
+    queryFn: ParticipantService.fetchJoinedBookings,
+  });
+
   const cancelMutation = useMutation({
     mutationFn: BookingService.deleteBooking,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mybookings'] });
+    },
+  });
+
+  // Leave a joined booking, then refetch the joined list
+  const leaveMutation = useMutation({
+    mutationFn: ParticipantService.leaveBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['joinedbookings'] });
     },
   });
 
@@ -30,10 +45,22 @@ export default function MyBookingsPage() {
     }
   };
 
+  const handleLeave = (booking: Booking) => {
+    if (window.confirm('Are you sure you want to leave this session?')) {
+      leaveMutation.mutate(booking.id!);
+    }
+  };
+
+  // Own and joined bookings in one list, like MyBookings() in SubTask1 (isOrganizer = own booking)
+  const allBookings = [
+    ...bookings.map(b => ({ ...b, isOrganizer: true })),
+    ...joinedBookings.map(b => ({ ...b, isOrganizer: false })),
+  ].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()); // earliest first
+
   // Split into upcoming (not finished yet) and previous bookings
   const now = new Date();
-  const upcomingBookings = bookings.filter(b => new Date(b.end) > now);
-  const pastBookings = bookings.filter(b => new Date(b.end) <= now);
+  const upcomingBookings = allBookings.filter(b => new Date(b.end) > now);
+  const pastBookings = allBookings.filter(b => new Date(b.end) <= now);
 
   return (
     <div className="py-4 text-start">
@@ -50,6 +77,7 @@ export default function MyBookingsPage() {
       {isLoading && <p className="text-muted">Loading...</p>}
       {error && <Alert variant="danger">Failed to fetch bookings.</Alert>}
       {cancelMutation.error && <Alert variant="danger">{cancelMutation.error.message}</Alert>}
+      {leaveMutation.error && <Alert variant="danger">{leaveMutation.error.message}</Alert>}
 
       <div className="mb-5">
         <h4 className="fw-bold mb-3">Upcoming Sessions</h4>
@@ -81,9 +109,10 @@ export default function MyBookingsPage() {
                     </div>
 
                     <div className="mt-auto pt-2 d-flex justify-content-end gap-2 border-top">
-                      <Button variant="outline-danger" size="sm" onClick={() => handleCancel(booking)}>
-                        Cancel
-                      </Button>
+                      {/* Owner can cancel, participant can leave */}
+                      {booking.isOrganizer
+                        ? <Button variant="outline-danger" size="sm" onClick={() => handleCancel(booking)}>Cancel</Button>
+                        : <Button variant="outline-danger" size="sm" onClick={() => handleLeave(booking)}>Leave</Button>}
                     </div>
                   </div>
                 </div>
