@@ -148,6 +148,35 @@ public class BookingAPIController : ControllerBase
         return StatusCode(500, "Internal server error");
     }
 
+    //HTTP PUT endpoint to switch JoinFlag on/off (open for others or private). Only the owner, like ToggleJoinFlag in SubTask1.
+    [HttpPut("togglejoinflag/{id}")]
+    public async Task<IActionResult> ToggleJoinFlag(int id)
+    {
+        var booking = await _bookingRepository.GetBookingByIdAsync(id);
+        if (booking == null)
+        {
+            _logger.LogWarning("[BookingAPIController] ToggleJoinFlag rejected: booking {BookingId} not found", id);
+            return NotFound("Booking not found");
+        }
+        if (booking.UserId != CurrentUserId)
+        {
+            _logger.LogWarning("[BookingAPIController] ToggleJoinFlag rejected: user {UserId} is not the owner of booking {BookingId}", CurrentUserId, id);
+            return Forbid();
+        }
+
+        booking.JoinFlag = !booking.JoinFlag;
+        bool updateSuccessful = await _bookingRepository.UpdateBookingAsync(booking);
+        if (updateSuccessful)
+        {
+            _logger.LogInformation("[BookingAPIController] Booking {BookingId} JoinFlag changed to {JoinFlag} by user {UserId}", id, booking.JoinFlag, CurrentUserId);
+            return Ok(ToDto(booking));
+        }
+
+        //throws 500 if fails
+        _logger.LogWarning("[BookingAPIController] ToggleJoinFlag failed for BookingId {BookingId:0000}", id);
+        return StatusCode(500, "Internal server error");
+    }
+
     //HTTP DELETE endpoint to cancel a booking. Only the owner or an admin, and not after the booking has started.
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteConfirmed(int id)

@@ -57,6 +57,15 @@ export async function createBooking(booking: Booking): Promise<{ id: number }> {
   return handleResponse<{ id: number }>(response);
 }
 
+// Switches the booking between open for others and private (only the owner)
+export async function toggleJoinFlag(bookingId: number): Promise<Booking> {
+  const response = await fetch(`${API_URL}/api/bookingapi/togglejoinflag/${bookingId}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<Booking>(response);
+}
+
 export async function deleteBooking(bookingId: number): Promise<void> {
   const response = await fetch(`${API_URL}/api/bookingapi/delete/${bookingId}`, {
     method: 'DELETE',
