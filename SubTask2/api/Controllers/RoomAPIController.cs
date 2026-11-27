@@ -22,6 +22,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP GET endpoint to retrieve a list of all rooms.
+    [Authorize]
     [HttpGet("roomlist")]
     public async Task<IActionResult> RoomList()
     {
@@ -31,20 +32,7 @@ public class RoomAPIController : ControllerBase
             _logger.LogError("[RoomAPIController] Room list not found while executing GetAllRoomsAsync()");
             return NotFound("Room list not found");
         }
-        var roomDtos = rooms.Select(room => new RoomDto
-        {
-            Id = room.Id,
-            Name = room.Name,
-            RoomCode = room.RoomCode,
-            Building = room.Building,
-            Floor = room.Floor,
-            Capacity = room.Capacity,
-            RoomType = room.RoomType,
-            Description = room.Description,
-            IsActive = room.IsActive,
-            Amenities = room.Amenities
-        });
-        return Ok(roomDtos);
+        return Ok(rooms.Select(ToDto));
     }
 
     //HTTP POST endpoint to create a new room. The room data is sent in the request body as JSON and mapped to a RoomDto object. The method creates a new Room entity
@@ -73,7 +61,7 @@ public class RoomAPIController : ControllerBase
         {
             // Success log: room created
             _logger.LogInformation("[RoomAPIController] Room {RoomId} ({RoomName}) created by admin {UserName}", newRoom.Id, newRoom.Name, CurrentUserName);
-            return CreatedAtAction(nameof(RoomList), new { id = newRoom.Id }, newRoom);
+            return CreatedAtAction(nameof(GetRoom), new { id = newRoom.Id }, ToDto(newRoom));
         }
 
         //throws 500 if fails
@@ -82,6 +70,7 @@ public class RoomAPIController : ControllerBase
     }
 
     //HTTP GET endpoint to retrieve one room by its id. Returns 404 if the room does not exist.
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRoom(int id)
     {
@@ -91,7 +80,7 @@ public class RoomAPIController : ControllerBase
             _logger.LogError("[RoomAPIController] Room not found for the RoomId {RoomId:0000}", id);
             return NotFound("Room not found for the RoomId");
         }
-        return Ok(room);
+        return Ok(ToDto(room));
     }
 
     //HTTP PUT endpoint to update an existing room. The new room data is sent in the request body as JSON and mapped to a RoomDto object. Returns 404 if the room does not exist.
@@ -122,7 +111,7 @@ public class RoomAPIController : ControllerBase
         {
             // Success log: room updated
             _logger.LogInformation("[RoomAPIController] Room {RoomId} ({RoomName}) updated by admin {UserName}", existingRoom.Id, existingRoom.Name, CurrentUserName);
-            return Ok(existingRoom);
+            return Ok(ToDto(existingRoom));
         }
 
         //throws 500 if fails
@@ -146,6 +135,21 @@ public class RoomAPIController : ControllerBase
         return NoContent();
     }
 
+    private static RoomDto ToDto(Room room) => new RoomDto
+    {
+        Id = room.Id,
+        Name = room.Name,
+        RoomCode = room.RoomCode,
+        Building = room.Building,
+        Floor = room.Floor,
+        Capacity = room.Capacity,
+        RoomType = room.RoomType,
+        Description = room.Description,
+        IsActive = room.IsActive,
+        Amenities = room.Amenities
+    };
+
     // Username of the logged-in user, read from the "sub" claim in the JWT (used in log messages)
     private string CurrentUserName => User.FindFirstValue("sub") ?? "unknown";
+
 }

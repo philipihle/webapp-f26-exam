@@ -14,9 +14,8 @@ export default function RoomGrid({ rooms, onRoomDeleted, canBook = false }: Room
     <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {rooms.map(room => (
         <div className="col" key={room.id}>
-          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column justify-content-between bg-white">
-            <div>
-              <div className="p-4 pb-2">
+          <div className="card h-100 border-0 shadow-sm rounded-4 justify-content-between">
+            <div className="p-4 pb-2">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   {room.isActive
                     ? <span className="badge bg-success">Active</span>
@@ -39,12 +38,11 @@ export default function RoomGrid({ rooms, onRoomDeleted, canBook = false }: Room
                     <span className="amenity-chip" key={amenity}>{amenity}</span>
                   ))}
                 </div>
-              </div>
             </div>
 
             {canBook && room.isActive && (
               <div className="p-4 pt-0">
-                <Link to={`/book/${room.id}`} className="btn btn-primary shadow-sm btn-sm w-100">Book now</Link>
+                <Link to={`/book/${room.id}`} className="btn btn-primary btn-sm w-100">Book now</Link>
               </div>
             )}
 

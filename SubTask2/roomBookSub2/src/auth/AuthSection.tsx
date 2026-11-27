@@ -7,11 +7,11 @@ export default function AuthSection() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
+    <div className="d-flex align-items-center gap-2 ms-auto">
       {user ? (
         <>
           <div className="d-none d-sm-flex flex-column text-end px-2">
-            <span className="fw-semibold small text-dark">{user.sub}</span>
+            <span className="fw-semibold small text-dark"><Link to="/account">{user.sub}</Link></span>
             <span className="text-muted small">{user.role ?? "Student"}</span>
           </div>
           <Button variant="outline-secondary" size="sm" onClick={logout}>

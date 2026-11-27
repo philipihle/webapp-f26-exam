@@ -4,7 +4,7 @@
 }
 
 <div class="py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h2 fw-bold text-dark mb-1">My Bookings</h1>
             <p class="text-secondary mb-0">View and manage your upcoming and previous reservations.</p>
@@ -36,7 +36,7 @@
 
         @if (!Model.UpcomingBookings.Any())
         {
-            <div class="card border-0 shadow-sm rounded-4 text-center p-5 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-5">
                 <h5 class="fw-bold mb-1">No upcoming bookings</h5>
                 <p class="text-muted small mb-3">You do not have any active room reservations at the moment.</p>
                 <div>
@@ -103,7 +103,7 @@
 
     @if (Model.PastBookings.Any())
     {
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white border-bottom py-3">
                 <h5 class="fw-bold mb-0">Previous Bookings (@Model.PastBookings.Count)</h5>
             </div>

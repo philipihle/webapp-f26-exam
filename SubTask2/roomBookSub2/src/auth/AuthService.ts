@@ -1,3 +1,4 @@
+import { getAuthHeaders } from '../shared/api';
 import type { LoginDto, RegisterDto } from '../types/auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -40,6 +41,23 @@ export const register = async (userData: RegisterDto): Promise<RegisterResponse>
       throw new Error(errorMessages || 'Registration failed');
     }
     throw new Error(errorData?.title || 'Registration failed');
+  }
+  return response.json();
+};
+
+export const updateAccount = async (userData: { email: string; password?: string; confirmPassword?: string }): Promise<RegisterResponse> => {
+  const response = await fetch(`${API_URL}/api/Auth/update`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(userData),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    if (Array.isArray(errorData)) {
+      const errorMessages = errorData.map((err) => err.description).join(', ');
+      throw new Error(errorMessages || 'Failed to update account.');
+    }
+    throw new Error(errorData?.title || 'Failed to update account.');
   }
   return response.json();
 };

@@ -22,11 +22,9 @@
 <body class="d-flex flex-column min-vh-100">
     <header class="sticky-top bg-white border-bottom shadow-sm">
         <nav class="navbar navbar-expand-lg navbar-light py-2">
-            <div class="container-fluid px-3 px-lg-4">
+            <div class="container-fluid px-4">
 
-                <a class="navbar-brand d-flex align-items-center gap-2 m-0" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span class="fw-bold">BookingPortal</span>
-                </a>
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">BookingPortal</a>
 
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -36,41 +34,27 @@
                 <div class="collapse navbar-collapse" id="navbarContent">
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center ms-lg-3 gap-1">
+                        <ul class="navbar-nav me-auto ms-lg-3">
                             <li class="nav-item">
-                                <a class="nav-link px-3 py-2 text-dark d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Rooms" asp-action="Index">
-                                    <span>Find a room</span>
-                                </a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Rooms" asp-action="Index">Find a room</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link px-3 py-2 text-dark d-inline-flex align-items-center gap-1" asp-area="" asp-controller="Booking" asp-action="MyBookings">
-                                    <span>My Bookings</span>
-                                </a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Booking" asp-action="MyBookings">My Bookings</a>
                             </li>
                         </ul>
-                    }
 
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                        <div class="d-flex align-items-center gap-2 ms-auto">
                             @if (User.IsInRole("Admin"))
                             {
-                                <a class="fw-semibold text-dark text-decoration-none" asp-area="" asp-controller="Admin" asp-action="Index">
-                                    <span>Admin Portal</span>
-                                </a>
+                                <a class="fw-semibold text-dark text-decoration-none" asp-area="" asp-controller="Admin" asp-action="Index">Admin Portal</a>
                             }
 
-                            @{
-                                var roleName = User.IsInRole("Admin") ? "Admin" : "Student";
-                            }
                             <a asp-area="" asp-controller="Account" asp-action="Account" class="d-none d-sm-flex flex-column text-end px-2 text-decoration-none" title="Account settings">
                                 <span class="fw-semibold small text-dark text-decoration-underline">@User.Identity.Name</span>
-                                <span class="text-muted small">@roleName</span>
+                                <span class="text-muted small">@(User.IsInRole("Admin") ? "Admin" : "Student")</span>
                             </a>
 
-                            <a class="btn btn-outline-secondary btn-sm" asp-area="" asp-controller="Account" asp-action="Logout">
-                                Logout
-                            </a>
+                            <a class="btn btn-outline-secondary btn-sm" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                         </div>
                     }
                 </div>

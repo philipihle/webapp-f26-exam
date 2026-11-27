@@ -20,7 +20,7 @@ export default function RoomCreatePage() {
       <div className="mb-4">
         <Link to="/rooms" className="btn btn-outline-secondary btn-sm">Back to all rooms</Link>
       </div>
-      <div className="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+      <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5">
         <h4 className="fw-bold mb-1">Create Room</h4>
         <p className="text-muted small mb-4">Fill in the details for the new room.</p>
         <RoomForm

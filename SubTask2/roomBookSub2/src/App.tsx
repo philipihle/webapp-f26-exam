@@ -10,6 +10,8 @@ import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
 import BookingCreatePage from './bookings/BookingCreatePage';
 import MyBookingsPage from './bookings/MyBookingsPage';
+import ProtectedRoute from './auth/ProtectedRoute';
+import Account from './auth/Account';
 
 const queryClient = new QueryClient(); // one shared instance for the whole app
 
@@ -24,13 +26,17 @@ export default function App() {
             <div className="container-xl flex-grow-1 mt-4">
               <main role="main" className="pb-4">
                 <Routes>
-                  <Route path="/rooms" element={<RoomListPage />} />
-                  <Route path="/roomcreate" element={<RoomCreatePage />} />
-                  <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/book/:roomId" element={<BookingCreatePage />} />
-                  <Route path="/mybookings" element={<MyBookingsPage />} />
+                  {/* Only logged in users can access the paths below, hence the ProtectedRoute wrapper */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/rooms" element={<RoomListPage />} />
+                    <Route path="/roomcreate" element={<RoomCreatePage />} />
+                    <Route path="/roomupdate/:roomId" element={<RoomUpdatePage />} />
+                    <Route path="/book/:roomId" element={<BookingCreatePage />} />
+                    <Route path="/mybookings" element={<MyBookingsPage />} />
+                    <Route path="/account" element={<Account />} />
+                  </Route>
                   <Route path="*" element={<Navigate to="/rooms" replace />} />
                 </Routes>
               </main>

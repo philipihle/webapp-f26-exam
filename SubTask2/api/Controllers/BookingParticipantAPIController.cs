@@ -50,7 +50,7 @@ public class BookingParticipantAPIController : ControllerBase
             _logger.LogError("[BookingParticipantAPIController] Joined bookings not found for user {UserId}", CurrentUserId);
             return NotFound("Joined bookings not found");
         }
-        return Ok(bookings.Select(BookingToDto));
+        return Ok(bookings.Select(BookingAPIController.ToDto));
     }
 
     //HTTP POST endpoint to join a booking. Rules from SubTask1 are checked first; returns 400 with a message if one is broken.
@@ -119,18 +119,5 @@ public class BookingParticipantAPIController : ControllerBase
         BookingId = participant.BookingId,
         UserName = participant.User?.UserName,
         JoinedAtDateTime = participant.JoinedAtDateTime
-    };
-
-    // Maps a joined Booking to BookingDto, same fields as in BookingAPIController
-    private static BookingDto BookingToDto(Booking booking) => new BookingDto
-    {
-        Id = booking.Id,
-        RoomId = booking.RoomId,
-        RoomName = booking.Room?.Name,
-        UserName = booking.User?.UserName,
-        Start = booking.Start,
-        End = booking.End,
-        Purpose = booking.Purpose,
-        JoinFlag = booking.JoinFlag
     };
 }
