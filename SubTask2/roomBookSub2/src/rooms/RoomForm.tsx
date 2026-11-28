@@ -75,8 +75,12 @@ export default function RoomForm({ onRoomChanged, roomId, initialValues, error =
 
       <Form.Group controlId="formRoomType" className="mb-3">
         <Form.Label className="small fw-semibold text-muted">Room type</Form.Label>
-        <Form.Control className="bg-light border-0" type="text" placeholder="E.g. Group room (optional)"
-          value={roomType} onChange={(e) => setRoomType(e.target.value)} maxLength={30} />
+        <Form.Select className="bg-light border-0" value={roomType} onChange={(e) => setRoomType(e.target.value)}>
+          <option value="">No room type</option>
+          <option value="Group Room">Group Room</option>
+          <option value="Meeting Room">Meeting Room</option>
+          <option value="Auditorium">Auditorium</option>
+        </Form.Select>
       </Form.Group>
 
       <Form.Group controlId="formRoomDescription" className="mb-3">

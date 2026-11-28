@@ -34,7 +34,8 @@ export default function BookingCreatePage() {
     mutationFn: BookingService.createBooking,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mybookings'] });
-      navigate('/mybookings');
+      queryClient.invalidateQueries({ queryKey: ['roombookings', roomId] });
+      navigate('/mybookings', { state: { message: 'Booking created successfully!' } });
     },
   });
 
@@ -102,9 +103,6 @@ export default function BookingCreatePage() {
                 : <span className="text-muted small">Standard room equipment</span>}
             </div>
 
-            <div className="pt-3 mt-4 border-top text-muted small">
-              Reservation confirmation is sent immediately upon booking.
-            </div>
           </div>
 
           {/* Booking form */}

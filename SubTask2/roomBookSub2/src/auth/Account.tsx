@@ -56,14 +56,14 @@ export default function Account() {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formAccountPassword">
-              <Form.Label>New Password</Form.Label>
+              <Form.Label>New Password</Form.Label><Form.Text className="text-muted small p-2">Optional*</Form.Text>
               <Form.Control type="password" placeholder="Leave blank to keep current" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} minLength={6} />
               <Form.Text muted>At least 6 characters, one digit and one uppercase letter.</Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formAccountConfirm">
               <Form.Label>Confirm New Password</Form.Label>
-              <Form.Control type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} />
+              <Form.Control type="password" placeholder="Repeat the new password to confirm" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} />
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100" disabled={isSubmitting}>
