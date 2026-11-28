@@ -186,7 +186,7 @@ public class BookingAPIController : ControllerBase
             _logger.LogWarning("[BookingAPIController] Booking rejected for room {RoomCode}: room is not active", room.RoomCode);
             return "This room cannot be booked right now.";
         }
-        if (dto.Start < DateTime.Now)
+        if (dto.Start <= DateTime.Now)
         {
             _logger.LogWarning("[BookingAPIController] Booking rejected for room {RoomCode}: start time {Start} is in the past", room.RoomCode, dto.Start);
             return "Start time cannot be in the past.";

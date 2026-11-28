@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button, Alert } from 'react-bootstrap';
 import type { Booking } from '../types/booking';
 import * as BookingService from './BookingService';
 import * as ParticipantService from './ParticipantService';
+import BookingChatModal from './BookingChatModal';
 
 // Date helpers: "27.11.2026" and "10:00", same format as SubTask1
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -12,6 +14,7 @@ const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('nb-NO', { 
 // The logged-in user's bookings. Layout and classes follow Views/Booking/MyBookings.cshtml in SubTask1.
 export default function MyBookingsPage() {
   const queryClient = useQueryClient();
+  const [chatBooking, setChatBooking] = useState<Booking | null>(null);
 
   const { data: bookings = [], isLoading, error } = useQuery<Booking[], Error>({
     queryKey: ['mybookings'],
@@ -87,6 +90,11 @@ export default function MyBookingsPage() {
       {cancelMutation.error && <Alert variant="danger">{cancelMutation.error.message}</Alert>}
       {leaveMutation.error && <Alert variant="danger">{leaveMutation.error.message}</Alert>}
       {toggleMutation.error && <Alert variant="danger">{toggleMutation.error.message}</Alert>}
+      {cancelMutation.isSuccess && <Alert variant="danger" dismissible>Booking canceled</Alert>}
+      {leaveMutation.isSuccess && <Alert variant="success" dismissible>You have left the session successfully</Alert>}
+      {useLocation().state?.message && (
+        <Alert variant="success" dismissible>{useLocation().state.message}</Alert>
+      )}
 
       <div className="mb-5">
         <h4 className="fw-bold mb-3">Upcoming Sessions</h4>
@@ -122,6 +130,9 @@ export default function MyBookingsPage() {
                           {booking.joinFlag ? 'Change to Private' : 'Allow others to join'}
                         </Button>
                       )}
+                      <Button variant="outline-primary" size="sm" onClick={() => setChatBooking(booking)}>
+                        Chat
+                      </Button>
                       {/* Owner can cancel, participant can leave */}
                       {booking.isOrganizer
                         ? <Button variant="outline-danger" size="sm" onClick={() => handleCancel(booking)}>Cancel</Button>
@@ -148,6 +159,7 @@ export default function MyBookingsPage() {
                   <th>Date</th>
                   <th>Time</th>
                   <th>Purpose</th>
+                  <th className="text-end">Chat</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,6 +169,7 @@ export default function MyBookingsPage() {
                     <td>{formatDate(booking.start)}</td>
                     <td>{formatTime(booking.start)} – {formatTime(booking.end)}</td>
                     <td>{booking.purpose}</td>
+                    <td className="text-end"><Button variant="outline-primary" size="sm" onClick={() => setChatBooking(booking)}>Chat</Button></td>
                   </tr>
                 ))}
               </tbody>
@@ -164,6 +177,7 @@ export default function MyBookingsPage() {
           </div>
         </div>
       )}
+      <BookingChatModal booking={chatBooking} onHide={() => setChatBooking(null)} />
     </div>
   );
 }

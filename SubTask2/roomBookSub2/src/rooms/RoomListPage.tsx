@@ -12,6 +12,7 @@ export default function RoomListPage() {
   const [showGrid, setShowGrid] = useState(true); // cards by default, as in SubTask1
   const [searchQuery, setSearchQuery] = useState(''); // search text, as in the lecturer's ItemListPage
   const [building, setBuilding] = useState(''); // '' = all buildings
+  const [roomType, setRoomType] = useState(''); // '' = all room types, e.g. Group Room
 
   // Fetch rooms through the service layer; React Query tracks loading and error
   const { data: rooms = [], isLoading, error } = useQuery<Room[], Error>({
@@ -40,14 +41,16 @@ export default function RoomListPage() {
 
   const toggleGridOrTable = () => setShowGrid(prev => !prev);
 
-  // Building names for the dropdown, without duplicates
+  // Building and room type names for the dropdowns, without duplicates
   const buildings = [...new Set(rooms.map(room => room.building))];
+  const roomTypes = [...new Set(rooms.map(room => room.roomType).filter((t): t is string => !!t))];
 
-  // Filter on the client like the lecturer: search text (name or description) AND building
+  // Filter on the client like the lecturer: search text (name or description) AND building AND room type
   const filteredRooms = rooms.filter(room =>
     (room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (room.description ?? '').toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (building === '' || room.building === building)
+    (building === '' || room.building === building) &&
+    (roomType === '' || room.roomType === roomType)
   );
 
   return (
@@ -71,10 +74,16 @@ export default function RoomListPage() {
           <Form.Control type="text" placeholder="Search by name or description"
             value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </Form.Group>
-        <Form.Group className="col-md-4">
+        <Form.Group className="col-md-2">
           <Form.Select value={building} onChange={e => setBuilding(e.target.value)}>
             <option value="">All buildings</option>
             {buildings.map(b => <option key={b} value={b}>{b}</option>)}
+          </Form.Select>
+        </Form.Group>
+        <Form.Group className="col-md-2">
+          <Form.Select value={roomType} onChange={e => setRoomType(e.target.value)}>
+            <option value="">All room types</option>
+            {roomTypes.map(t => <option key={t} value={t}>{t}</option>)}
           </Form.Select>
         </Form.Group>
       </div>

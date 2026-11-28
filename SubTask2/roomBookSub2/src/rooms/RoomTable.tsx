@@ -19,6 +19,7 @@ export default function RoomTable({ rooms, onRoomDeleted }: RoomTableProps) {
             <th>Building</th>
             <th>Floor</th>
             <th>Capacity</th>
+            <th>Room type</th>
             {onRoomDeleted && <th>Actions</th>}
           </tr>
         </thead>
@@ -30,6 +31,7 @@ export default function RoomTable({ rooms, onRoomDeleted }: RoomTableProps) {
               <td>{room.building}</td>
               <td>{room.floor}</td>
               <td>{room.capacity}</td>
+              <td>{room.roomType ?? '-'}</td>
               {onRoomDeleted && (
                 <td className="text-center">
                   <Link to={`/roomupdate/${room.id}`}>Update</Link>
